@@ -45,7 +45,6 @@ from fife.extensions.pychan.fife_pychansettings import FifePychanSettings
 from fife.extensions.fife_utils import getUserDataDirectory
 
 TDS = FifePychanSettings(app_name="rio_de_hola")
-#TDS = FifePychanSettings(app_name="SoftDev app")
 
 class ApplicationListener(eventlistenerbase.EventListenerBase):
     def __init__(self, engine, world):
@@ -72,7 +71,10 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
              'boy' : self.onBoyButtonPress,
              'girl' : self.onGirlButtonPress
          })
+        self.boyButton =  self.character_gui.getNamedChildren()['boy'][0]
+        self.girlButton =  self.character_gui.getNamedChildren()['girl'][0]
         self.character_gui.show()
+        self.girlButton.hide()
 
     def keyPressed(self, evt):
         keyval = evt.getKey().getValue()
@@ -111,10 +113,16 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
         self.aboutWindow.show()
 
     def onBoyButtonPress(self):
-        print "Boy button"
+        self.girlButton.show()
+        self.boyButton.hide()
+        self.world.switchMainAgentTo('girl')
         
     def onGirlButtonPress(self):
-        print "Girl button"
+        self.boyButton.show()
+        self.girlButton.hide()
+        self.world.switchMainAgentTo('boy')
+
+
 
 class IslandDemo(PychanApplicationBase):
     def __init__(self):

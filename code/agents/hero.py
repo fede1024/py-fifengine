@@ -44,7 +44,7 @@ class Hero(Agent):
 		else:
 			self.idlecounter += 1
 		if self.idlecounter % 7 == 0:
-			heroTexts = self.settings.get("rio", "heroTexts")
+			heroTexts = self.settings.get("rio", "boyIdleTexts")
 			txtindex = random.randint(0, len(heroTexts) - 1)
 			instance.say(heroTexts[txtindex], 2500)
 
@@ -68,6 +68,7 @@ class Hero(Agent):
 
 	def talk(self, target):
 		self.state = _STATE_TALK
+		self.idlecounter = 1
 		self.agent.actOnce('talk', target)
 
 

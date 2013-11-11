@@ -30,7 +30,8 @@
 		<Setting name="CoordinateLayerName" type="str"> TechdemoMapTileLayer </Setting>
 		<Setting name="QuadTreeLayerName" type="str"> </Setting>
 
-		<Setting name="heroTexts" type="list"> I wonder when the guys will get this world ready for me ; Bring it on baby, I'm ready for action! ; humm di dum.... </Setting>
+		<Setting name="boyIdleTexts" type="list"> I wonder when the guys will get this world ready for me ; Bring it on baby, I'm ready for action! ; humm di dum.... </Setting>
+		<Setting name="boyTexts" type="list"> I'm the hero! ; I want to kick someone! ; Just bee yourself, LOL </Setting>
 		<Setting name="girlTexts" type="list"> Why I am running? Haven't you heard that the bees are coming?! ; Heeelp!!! The bees are going to get us! </Setting>
 		<Setting name="beekeeperTexts" type="list"> Some idiot has grown mutated bees around here ; Want to take a look at my farm? ; Did you know that I actually cannot do anything else than stand still and greet everybody? </Setting>
 

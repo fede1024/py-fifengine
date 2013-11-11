@@ -64,6 +64,7 @@ class World(EventListenerBase):
 
         self.light_intensity = 1
         self.light_sources = 0
+        self.lightmodel = 1  # DK why
 
         self.soundmanager = SoundManager(self.engine)
         self.music = None
@@ -74,7 +75,7 @@ class World(EventListenerBase):
         clicked on. The available actions are dynamically added to
         the menu (and mapped to the onXYZ functions).
         """
-        if instance.getFifeId() == self.hero.agent.getFifeId():
+        if instance.getFifeId() == self.mainAgent.agent.getFifeId(): # click on yourself
             return
 
         # Create the popup.
@@ -84,13 +85,14 @@ class World(EventListenerBase):
 
         # Add the buttons according to circumstances.
         self.instancemenu.addChild(self.dynamic_widgets['inspectButton'])
-        target_distance = self.hero.agent.getLocationRef().getLayerDistanceTo(instance.getLocationRef())
+        target_distance = self.mainAgent.agent.getLocationRef().getLayerDistanceTo(instance.getLocationRef())
         if target_distance > 3.0:
             self.instancemenu.addChild(self.dynamic_widgets['moveButton'])
         else:
             if self.instance_to_agent.has_key(instance.getFifeId()):
                 self.instancemenu.addChild(self.dynamic_widgets['talkButton'])
-                self.instancemenu.addChild(self.dynamic_widgets['kickButton'])
+                if self.mainAgent == self.hero:
+                    self.instancemenu.addChild(self.dynamic_widgets['kickButton'])
         # And show it :)
         self.instancemenu.position = (clickpoint.x, clickpoint.y)
         self.instancemenu.show()
@@ -166,6 +168,7 @@ class World(EventListenerBase):
         self.agentlayer = self.map.getLayer('TechdemoMapGroundObjectLayer')
         self.hero = Hero(TDS, self.model, 'PC', self.agentlayer)
         self.instance_to_agent[self.hero.agent.getFifeId()] = self.hero
+        self.mainAgent = self.hero
         self.hero.start()
 
         self.girl = Girl(TDS, self.model, 'NPC:girl', self.agentlayer)
@@ -194,7 +197,7 @@ class World(EventListenerBase):
             self.cameras[camera_id] = cam
             cam.resetRenderers()
             
-        self.cameras['main'].attach(self.hero.agent)
+        self.cameras['main'].attach(self.mainAgent.agent)
 
         # Floating text renderers currntly only support one font.
         # ... so we set that up.
@@ -296,6 +299,11 @@ class World(EventListenerBase):
             self.cameras['main'].refresh()
         elif keystr == 'o':
             self.target_rotation = (self.target_rotation + 90) % 360
+        elif keystr == 'x':
+            if self.mainAgent.agent.getObject().getId() == 'girl':
+                self.switchMainAgentTo('boy')
+            elif self.mainAgent.agent.getObject().getId() == 'boy':
+                self.switchMainAgentTo('girl')
         elif keystr == '2':
             self.lightIntensity(0.1)
         elif keystr == '1':
@@ -317,11 +325,11 @@ class World(EventListenerBase):
 
     def mouseWheelMovedUp(self, evt):
         if self.ctrldown:
-            self.cameras['main'].setZoom(self.cameras['main'].getZoom() * 1.05)
+            self.cameras['main'].setZoom(self.cameras['main'].getZoom() * 1.10)
 
     def mouseWheelMovedDown(self, evt):
         if self.ctrldown:
-            self.cameras['main'].setZoom(self.cameras['main'].getZoom() / 1.05)
+            self.cameras['main'].setZoom(self.cameras['main'].getZoom() / 1.10)
 
     def changeRotation(self):
         """
@@ -339,7 +347,7 @@ class World(EventListenerBase):
         clickpoint = fife.ScreenPoint(evt.getX(), evt.getY())
         if (evt.getButton() == fife.MouseEvent.LEFT):
             self.hide_instancemenu()
-            self.hero.run( self.getLocationAt(clickpoint) )
+            self.mainAgent.run(self.getLocationAt(clickpoint) )
 
         if (evt.getButton() == fife.MouseEvent.RIGHT):
             instances = self.getInstancesAt(clickpoint)
@@ -354,7 +362,9 @@ class World(EventListenerBase):
         pt = fife.ScreenPoint(evt.getX(), evt.getY())
         instances = self.getInstancesAt(pt);
         for i in instances:
-            if i.getObject().getId() in ('girl', 'beekeeper'):
+            aid = i.getObject().getId() 
+            me = self.mainAgent.agent.getObject().getId()
+            if (aid in ('girl', 'beekeeper', 'boy')) and aid != me:
                 renderer.addOutlined(i, 173, 255, 47, 2)
 
     def lightIntensity(self, value):
@@ -395,22 +405,28 @@ class World(EventListenerBase):
     # Callbacks from the popupmenu
     def onMoveButtonPress(self):
         self.hide_instancemenu()
-        self.hero.run(self.instancemenu.instance.getLocationRef())
+        self.mainAgent.run(self.instancemenu.instance.getLocationRef())
 
     def onTalkButtonPress(self):
         self.hide_instancemenu()
         instance = self.instancemenu.instance
-        self.hero.talk(instance.getLocationRef())
+        self.mainAgent.run(instance.getLocationRef())
+        dest = self.instance_to_agent[instance.getFifeId()] # The other one is talking
+        dest.talk(self.mainAgent.agent.getLocationRef())
+        #dest.run(instance.getLocationRef())
         if instance.getObject().getId() == 'beekeeper':
             beekeeperTexts = TDS.get("rio", "beekeeperTexts")
             instance.say(random.choice(beekeeperTexts), 5000)
         if instance.getObject().getId() == 'girl':
             girlTexts = TDS.get("rio", "girlTexts")
             instance.say(random.choice(girlTexts), 5000)
+        if instance.getObject().getId() == 'boy':
+            boyTexts = TDS.get("rio", "boyTexts")
+            instance.say(random.choice(boyTexts), 5000)
 
     def onKickButtonPress(self):
         self.hide_instancemenu()
-        self.hero.kick(self.instancemenu.instance.getLocationRef())
+        self.mainAgent.kick(self.instancemenu.instance.getLocationRef())
         self.instancemenu.instance.say('Hey!', 1000)
 
     def onInspectButtonPress(self):
@@ -421,7 +437,7 @@ class World(EventListenerBase):
             # saytext.append('This is %s,' % inst.getId())
         # saytext.append(' ID %s and' % inst.getFifeId())
         saytext.append('%s' % inst.getObject().getId())
-        self.hero.agent.say('\n'.join(saytext), 3500)
+        self.mainAgent.agent.say('\n'.join(saytext), 3500)
 
     def pump(self):
         """
@@ -430,3 +446,16 @@ class World(EventListenerBase):
 
         self.changeRotation()
         self.pump_ctr += 1
+
+    def switchMainAgentTo(self, name):
+        if name == 'boy':
+            self.mainAgent = self.hero
+            other = self.girl
+        elif name == 'girl':
+            self.mainAgent = self.girl
+            other = self.hero
+        else:
+            return
+        self.cameras['main'].attach(self.mainAgent.agent)
+        self.cameras['small'].attach(other.agent)
+        print "Switching to " + name

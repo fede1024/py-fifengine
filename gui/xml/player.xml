@@ -5,8 +5,9 @@
 		up_image="gui/images/hud_boy.png"
 		down_image="gui/images/hud_boy.png"
 		hover_image="gui/images/hud_boy.png" />
+	<!-- 		position="0,76" -->
 	<ImageButton name="girl"
-		position="0,76"
+		position="0,0"
 		is_focusable="0"
 		up_image="gui/images/hud_girl.png"
 		down_image="gui/images/hud_girl.png"
