@@ -23,10 +23,11 @@
 
 import random
 from agent import Agent
-from fife.extensions.fife_settings import Setting
+#from fife.extensions.fife_settings import Setting
 
 #TDS = Setting(app_name="rio_de_hola")
 
+# Define constants
 _STATE_NONE, _STATE_IDLE, _STATE_RUN, _STATE_KICK, _STATE_TALK = xrange(5)
 
 class Hero(Agent):
@@ -36,6 +37,7 @@ class Hero(Agent):
 		self.idlecounter = 1
 
 	def onInstanceActionFinished(self, instance, action):
+		#print "Action finished: " + str(action.getId())
 		self.idle()
 		if action.getId() != 'stand':
 			self.idlecounter = 1

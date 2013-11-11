@@ -24,6 +24,8 @@
 from fife import fife
 from code.common.common import ProgrammingError
 
+# uniqInMap => there is a specific action litener for that agent
+
 class Agent(fife.InstanceActionListener):
 	def __init__(self, settings, model, agentName, layer, uniqInMap=True):
 		fife.InstanceActionListener.__init__(self)
@@ -47,7 +49,7 @@ class Agent(fife.InstanceActionListener):
 	def start(self):
 		raise ProgrammingError('No start defined for Agent')
 
-
+# Not unique in map agents
 def create_anonymous_agents(settings, model, objectName, layer, agentClass):
 	agents = []
 	instances = [a for a in layer.getInstances() if a.getObject().getId() == objectName]

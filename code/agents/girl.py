@@ -23,7 +23,7 @@
 
 from agent import Agent
 from fife import fife
-from fife.extensions.fife_settings import Setting
+#from fife.extensions.fife_settings import Setting
 
 #TDS = Setting(app_name="rio_de_hola")
 
@@ -46,8 +46,11 @@ class Girl(Agent):
             if self.waypoint_counter % 3:
                 self.waypoint_counter += 1
                 self.follow_hero()
+                print "Follow hero"
             else:
-                self.run(self.getNextWaypoint())
+                w = self.getNextWaypoint()
+                self.run(w)
+                print "Next waypoint " + str(w.getExactLayerCoordinates())
 
     def onInstanceActionCancelled(self, instance, action):
         pass

@@ -1,9 +1,14 @@
-<Container size="100,100" position="10,20" opaque="0" border_size="0">
-	<!-- <Icon name="background_hud1" helptext="You" image="gui/images/hud_boy.png" /> -->
-	<ImageButton name="face"
-		position="5,5"
+<Container size="49,142" position="10,35" opaque="0" border_size="0">
+	<ImageButton name="boy"
+		position="0,0"
 		is_focusable="0"
 		up_image="gui/images/hud_boy.png"
 		down_image="gui/images/hud_boy.png"
 		hover_image="gui/images/hud_boy.png" />
+	<ImageButton name="girl"
+		position="0,76"
+		is_focusable="0"
+		up_image="gui/images/hud_girl.png"
+		down_image="gui/images/hud_girl.png"
+		hover_image="gui/images/hud_girl.png" />
 </Container>

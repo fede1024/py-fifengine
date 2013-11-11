@@ -24,10 +24,11 @@
 # ####################################################################
 # This is the rio de hola client for FIFE.
 
-import sys, os, re, math, random, shutil
+import sys, os
 
 #fife_path = os.path.join('..','..','engine','python')
 fife_path = os.path.join('/home','federico','tmp','sdproject','engine','python')
+print "Importing fife from: "
 print fife_path
 if os.path.isdir(fife_path) and fife_path not in sys.path:
     sys.path.insert(0,fife_path)
@@ -41,20 +42,18 @@ from code.common import eventlistenerbase
 from fife.extensions import pychan
 from fife.extensions.pychan.pychanbasicapplication import PychanApplicationBase
 from fife.extensions.pychan.fife_pychansettings import FifePychanSettings
-from fife.extensions.pychan import widgets
-from fife.extensions.pychan.internal import get_manager
-from fife.extensions.fife_settings import Setting
 from fife.extensions.fife_utils import getUserDataDirectory
 
 TDS = FifePychanSettings(app_name="rio_de_hola")
+#TDS = FifePychanSettings(app_name="SoftDev app")
 
 class ApplicationListener(eventlistenerbase.EventListenerBase):
     def __init__(self, engine, world):
         super(ApplicationListener, self).__init__(engine,regKeys=True,regCmd=True, regMouse=False, regConsole=False, regWidget=True)
+#        super(ApplicationListener, self).__init__(engine,regKeys=True,regCmd=True, regMouse=True, regConsole=False, regWidget=True)
         self.engine = engine
         self.world = world
-        engine.getEventManager().setNonConsumableKeys([
-            fife.Key.ESCAPE,])
+        engine.getEventManager().setNonConsumableKeys([fife.Key.ESCAPE,])
 
         self.quit = False
         self.aboutWindow = None
@@ -63,17 +62,21 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
         self.rootpanel.mapEvents({ 
             'quitButton' : self.onQuitButtonPress,
             'aboutButton' : self.onAboutButtonPress,
-            'optionsButton' : TDS.showSettingsDialog
+            'optionsButton' : TDS.showSettingsDialog,
+            'newsButton' : self.onNewsButtonPress
         })
         self.rootpanel.show()
 
         self.character_gui = pychan.loadXML('gui/xml/player.xml')
+        self.character_gui.mapEvents({ 
+             'boy' : self.onBoyButtonPress,
+             'girl' : self.onGirlButtonPress
+         })
         self.character_gui.show()
 
     def keyPressed(self, evt):
         keyval = evt.getKey().getValue()
         keystr = evt.getKey().getAsString().lower()
-        consumed = False
         if keyval == fife.Key.ESCAPE:
             self.quit = True
             evt.consume()
@@ -98,13 +101,27 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
             self.aboutWindow.mapEvents({ 'closeButton' : self.aboutWindow.hide })
             self.aboutWindow.distributeData({ 'helpText' : open("misc/infotext.txt").read() })
         self.aboutWindow.show()
+    
+    def onNewsButtonPress(self):
+        if not self.aboutWindow:
+            self.aboutWindow = pychan.loadXML('gui/xml/news.xml')
+            self.aboutWindow.mapEvents({ 'closeButton' : self.aboutWindow.hide })
+            #self.aboutWindow.distributeData({ 'helpText' : open("misc/infotext.txt").read() })
+            self.aboutWindow.distributeData({ 'newsText' :"This is some\ntext"})
+        self.aboutWindow.show()
+
+    def onBoyButtonPress(self):
+        print "Boy button"
+        
+    def onGirlButtonPress(self):
+        print "Girl button"
 
 class IslandDemo(PychanApplicationBase):
     def __init__(self):
         super(IslandDemo,self).__init__(TDS)
         self.world = world.World(self.engine)
         self.listener = ApplicationListener(self.engine, self.world)
-        self.world.load(str(TDS.get("rio", "MapFile")))
+        self.world.load(str(TDS.get("rio", "MapFile"))) # Create world and agents
 
     def createListener(self):
         pass # already created in constructor

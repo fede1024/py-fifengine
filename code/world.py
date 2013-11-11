@@ -22,9 +22,8 @@
 # ####################################################################
 
 from fife import fife
-import math, random
+import random
 from fife.extensions import pychan
-from fife.extensions.pychan import widgets
 from fife.extensions.pychan.internal import get_manager
 
 from code.common.eventlistenerbase import EventListenerBase

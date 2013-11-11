@@ -22,7 +22,7 @@
 # ####################################################################
 
 from fife import fife
-from fife.extensions import pychan
+#from fife.extensions import pychan
 from fife.extensions.pychan.internal import get_manager
 
 class EventListenerBase(fife.IKeyListener, fife.ICommandListener, fife.IMouseListener, fife.ConsoleExecuter):
@@ -54,10 +54,13 @@ class EventListenerBase(fife.IKeyListener, fife.ICommandListener, fife.IMouseLis
 	def mouseClicked(self, evt):
 		pass
 	def mouseWheelMovedUp(self, evt):
+		#print "Mounse weel up"
 		pass	
 	def mouseWheelMovedDown(self, evt):
+		#print "Mounse weel down"
 		pass
 	def mouseMoved(self, evt):
+		#print "Mouse moved " + str(evt)
 		pass
 	def mouseDragged(self, evt):
 		pass
