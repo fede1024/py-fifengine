@@ -1,5 +1,7 @@
 self.character_gui.getNamedChildren()['childname']
 
+Instance.getObject().getId() == 'beekeeper'
+
 Modifiche:
 aggiunto tasto ragazza + cambio camera e azioni, mappato su x
 modificata il talk: il main si gira verso l'altro e l'altro parla

@@ -22,29 +22,39 @@
 # ####################################################################
 
 from agent import Agent
-from fife import fife
+from fife.extensions.fife_settings import Setting
 import random
+
+TDS = Setting(app_name="rio_de_hola")
 
 _STATE_NONE, _STATE_TALK = 0, 1
 
 class Beekeeper(Agent):
-	def __init__(self, settings, model, agentName, layer, uniqInMap=True):
-		super(Beekeeper, self).__init__(settings, model, agentName, layer, uniqInMap)
-		self.state = _STATE_NONE
+    def __init__(self, settings, model, agentName, layer, uniqInMap=True):
+        super(Beekeeper, self).__init__(settings, model, agentName, layer, uniqInMap)
+        self.state = _STATE_NONE
 
-	def onInstanceActionFinished(self, instance, action):
-		self.talk()
+    def onInstanceActionFinished(self, instance, action):
+        self.talk()
 
-	def onInstanceActionCancelled(self, instance, action):
-		pass
-	
-	def start(self):
-		self.facingLoc = self.agent.getLocation()
-		c = self.facingLoc.getExactLayerCoordinatesRef()
-		c.x += random.randint(-1, 1)
-		c.y += random.randint(-1, 1)
-		self.talk()
+    def onInstanceActionCancelled(self, instance, action):
+        pass
 
-	def talk(self):
-		self.state = _STATE_TALK
-		self.agent.actRepeat('talk', self.facingLoc) # never calls back
+    def start(self):
+        self.facingLoc = self.agent.getLocation()
+        c = self.facingLoc.getExactLayerCoordinatesRef()
+        c.x += random.randint(-1, 1)
+        c.y += random.randint(-1, 1)
+        self.talk()
+
+    def talk(self):
+        self.state = _STATE_TALK
+        self.agent.actRepeat('talk', self.facingLoc) # never calls back
+
+    # Execute before default doReaction of Agent
+    def doReaction(self, name, actionAgent, reactionInstance):
+        if name=="talk":
+            texts = TDS.get("rio", "beekeeperTexts")
+            reactionInstance.say(random.choice(texts), 5000)
+        else:
+            super(Beekeeper, self).doReaction(name, actionAgent, reactionInstance)

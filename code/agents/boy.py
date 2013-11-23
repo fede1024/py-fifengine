@@ -21,25 +21,43 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 # ####################################################################
 
-import random
 from humanAgent import HumanAgent
+from fife.extensions.fife_settings import Setting
+import random
+
+TDS = Setting(app_name="rio_de_hola")
 
 # Define constants
 _STATE_KICK = xrange(5)
 
 class Boy(HumanAgent):
-	def onInstanceActionFinished(self, instance, action):
-		#print "Action finished: " + str(action.getId())
-		self.idle()
-		if action.getId() != 'stand':
-			self.idlecounter = 1
-		else:
-			self.idlecounter += 1
-		if self.idlecounter % 7 == 0:
-			heroTexts = self.settings.get("rio", "boyIdleTexts")
-			txtindex = random.randint(0, len(heroTexts) - 1)
-			instance.say(heroTexts[txtindex], 2500)
+    def onInstanceActionFinished(self, instance, action):
+        #print "Action finished: " + str(action.getId())
+        self.idle()
+        if action.getId() != 'stand':
+            self.idlecounter = 1
+        else:
+            self.idlecounter += 1
+        if self.idlecounter % 7 == 0:
+            heroTexts = self.settings.get("rio", "boyIdleTexts")
+            txtindex = random.randint(0, len(heroTexts) - 1)
+            instance.say(heroTexts[txtindex], 2500)
 
-	def kick(self, target):
-		self.state = _STATE_KICK
-		self.agent.actOnce('kick', target)
+    def kick(self, target):
+        self.state = _STATE_KICK
+        self.agent.actOnce('kick', target)
+
+    # Execute before default doAction of Agent
+    def doAction(self, name, reactionInstance, reactionAgent):
+        if name=="kick":
+            self.kick(reactionInstance.getLocationRef())
+        else:
+            super(Boy, self).doAction(name, reactionInstance, reactionAgent)
+
+    # Execute before default doReaction of Agent
+    def doReaction(self, name, actionAgent, reactionInstance):
+        if name=="talk":
+            texts = TDS.get("rio", "boyTexts")
+            reactionInstance.say(random.choice(texts), 5000)
+        else:
+            super(Boy, self).doReaction(name, actionAgent, reactionInstance)

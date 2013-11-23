@@ -23,49 +23,57 @@
 
 from fife import fife
 from code.common.common import ProgrammingError
+from fife.extensions.fife_settings import Setting
+import random
+
+TDS = Setting(app_name="rio_de_hola")
 
 # uniqInMap => there is a specific action litener for that agent
 
 class Agent(fife.InstanceActionListener):
-	def __init__(self, settings, model, agentName, layer, uniqInMap=True):
-		fife.InstanceActionListener.__init__(self)
-		self.settings = settings
-		self.model = model
-		self.agentName = agentName
-		self.layer = layer
-		if uniqInMap:
-			self.agent = layer.getInstance(agentName)
-			self.agent.addActionListener(self)
+    def __init__(self, settings, model, agentName, layer, uniqInMap=True):
+        fife.InstanceActionListener.__init__(self)
+        self.settings = settings
+        self.model = model
+        self.agentName = agentName
+        self.layer = layer
+        if uniqInMap:
+            self.agent = layer.getInstance(agentName)
+            self.agent.addActionListener(self)
 
-	def onInstanceActionFinished(self, instance, action):
-		raise ProgrammingError('No OnActionFinished defined for Agent')
+    def onInstanceActionFinished(self, instance, action):
+        raise ProgrammingError('No OnActionFinished defined for Agent')
 
-	def onInstanceActionCancelled(self, instance, action):
-		raise ProgrammingError('No OnActionFinished defined for Agent')
-	
-	def onInstanceActionFrame(self, instance, action, frame):
-		raise ProgrammingError('No OnActionFrame defined for Agent')	
+    def onInstanceActionCancelled(self, instance, action):
+        raise ProgrammingError('No OnActionFinished defined for Agent')
 
-	def start(self):
-		raise ProgrammingError('No start defined for Agent')
+    def onInstanceActionFrame(self, instance, action, frame):
+        raise ProgrammingError('No OnActionFrame defined for Agent')
 
-	def doAction(self, name, reactionInstance, reactionAgent):
-		print "No action '%s' defined for %s to %s (agent %s)."%(name, self.agentName, reactionInstance.getObject().getId(), \
-																None if not reactionAgent else reactionAgent.agentName)
+    def start(self):
+        raise ProgrammingError('No start defined for Agent')
 
-	def doReaction(self, name, actionAgent):
-		print "No reaction for action '%s' defined for %s to %s."%(name, self.agentName, actionAgent.agentName)
-		
+    def doAction(self, name, reactionInstance, reactionAgent):
+        print "No action '%s' defined for %s to %s (agent %s)."%(name, self.agentName, reactionInstance.getObject().getId(), \
+                                                                None if not reactionAgent else reactionAgent.agentName)
+
+    # the "reactionAgent" is yourself of course
+    def doReaction(self, name, actionAgent, reactionInstance):
+        if name in ("inspect", "move"):
+            pass
+        else:
+            print "No defined reaction for action '%s' for %s to %s."%(name, self.agentName, actionAgent.agentName)
+
 # Not unique in map agents
 def create_anonymous_agents(settings, model, objectName, layer, agentClass):
-	agents = []
-	instances = [a for a in layer.getInstances() if a.getObject().getId() == objectName]
-	i = 0
-	for a in instances:
-		agentName = '%s:i:%d' % (objectName, i)
-		i += 1
-		agent = agentClass(settings, model, agentName, layer, False)
-		agent.agent = a
-		a.addActionListener(agent)
-		agents.append(agent)
-	return agents
+    agents = []
+    instances = [a for a in layer.getInstances() if a.getObject().getId() == objectName]
+    i = 0
+    for a in instances:
+        agentName = '%s:i:%d' % (objectName, i)
+        i += 1
+        agent = agentClass(settings, model, agentName, layer, False)
+        agent.agent = a
+        a.addActionListener(agent)
+        agents.append(agent)
+    return agents

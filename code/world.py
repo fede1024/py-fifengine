@@ -354,7 +354,7 @@ class World(EventListenerBase):
 
         if (evt.getButton() == fife.MouseEvent.RIGHT):
             instances = self.getInstancesAt(clickpoint)
-            print "selected instances on agent layer: ", [i.getObject().getId() for i in instances]
+            #print "selected instances on agent layer: ", [i.getObject().getId() for i in instances]
             if instances:
                 self.show_instancemenu(clickpoint, instances[0])
 
@@ -367,7 +367,7 @@ class World(EventListenerBase):
         for i in instances:
             aid = i.getObject().getId() 
             me = self.mainAgent.agent.getObject().getId()
-            if (aid in ('girl', 'beekeeper', 'boy')) and aid != me:
+            if (aid in ('girl', 'beekeeper', 'boy')) and aid != me: # TODO completare qqui
                 renderer.addOutlined(i, 173, 255, 47, 2)
 
     def lightIntensity(self, value):
@@ -405,11 +405,6 @@ class World(EventListenerBase):
             result = str(e)
         return result
 
-    # Callbacks from the popupmenu
-    def onMoveButtonPress(self):
-        self.hide_instancemenu()
-        self.mainAgent.run(self.instancemenu.instance.getLocationRef())
-
     def onAction(self, name):
         """ self.mainAgent is performing action 'name' relate to some instance menu"""
         self.hide_instancemenu()
@@ -417,41 +412,9 @@ class World(EventListenerBase):
         if self.instance_to_agent.has_key(destInstance.getFifeId()):        # The reactor is an agent
             destAgent = self.instance_to_agent[destInstance.getFifeId()]
             self.mainAgent.doAction(name, destInstance, destAgent)
-            destAgent.doReaction(name, self.mainAgent)
+            destAgent.doReaction(name, self.mainAgent, destInstance)
         else:                                                                                                               # The reactor is not an agent
             self.mainAgent.doAction(name, destInstance, None)
-
-    def onTalkButtonPress(self):
-        self.hide_instancemenu()
-        instance = self.instancemenu.instance
-        self.mainAgent.run(instance.getLocationRef())
-        dest = self.instance_to_agent[instance.getFifeId()] # The other one is talking
-        dest.talk(self.mainAgent.agent.getLocationRef())
-        #dest.run(instance.getLocationRef())
-        if instance.getObject().getId() == 'beekeeper':
-            beekeeperTexts = TDS.get("rio", "beekeeperTexts")
-            instance.say(random.choice(beekeeperTexts), 5000)
-        if instance.getObject().getId() == 'girl':
-            girlTexts = TDS.get("rio", "girlTexts")
-            instance.say(random.choice(girlTexts), 5000)
-        if instance.getObject().getId() == 'boy':
-            boyTexts = TDS.get("rio", "boyTexts")
-            instance.say(random.choice(boyTexts), 5000)
-
-    def onKickButtonPress(self):
-        self.hide_instancemenu()
-        self.mainAgent.kick(self.instancemenu.instance.getLocationRef())
-        self.instancemenu.instance.say('Hey!', 1000)
-
-    def onInspectButtonPress(self):
-        self.hide_instancemenu()
-        inst = self.instancemenu.instance
-        saytext = []
-        # if inst.getId():
-            # saytext.append('This is %s,' % inst.getId())
-        # saytext.append(' ID %s and' % inst.getFifeId())
-        saytext.append('%s' % inst.getObject().getId())
-        self.mainAgent.agent.say('\n'.join(saytext), 3500)
 
     def pump(self):
         """

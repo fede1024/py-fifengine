@@ -22,6 +22,30 @@
 # ####################################################################
 
 from humanAgent import HumanAgent
+import random
+from fife.extensions.fife_settings import Setting
+
+TDS = Setting(app_name="rio_de_hola")
 
 class Girl(HumanAgent):
-    pass
+
+    # Execute before default doReaction of Agent
+    def doReaction(self, name, actionAgent, reactionInstance):
+        if name=="talk":
+            girlTexts = TDS.get("rio", "girlTexts")
+            reactionInstance.say(random.choice(girlTexts), 5000)
+        elif name=="kick":
+            self.agent.say("Hey!!!", 3500)
+        else:
+            super(Girl, self).doReaction(name, actionAgent, reactionInstance)
+
+    # Execute before default doAction of Agent
+    def doAction(self, name, reactionInstance, reactionAgent):
+        if name=="inspect":
+            saytext = []
+            saytext.append('%s' % reactionInstance.getObject().getId())
+            self.agent.say('\n'.join(saytext), 3500)
+        elif name=="move":
+            self.run(reactionInstance.getLocationRef())
+        else:
+            super(Girl, self).doAction(name, reactionInstance, reactionAgent)

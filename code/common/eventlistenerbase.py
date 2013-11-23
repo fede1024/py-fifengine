@@ -26,53 +26,53 @@ from fife import fife
 from fife.extensions.pychan.internal import get_manager
 
 class EventListenerBase(fife.IKeyListener, fife.ICommandListener, fife.IMouseListener, fife.ConsoleExecuter):
-	def __init__(self, engine, regKeys=False, regCmd=False, regMouse=False, regConsole=False, regWidget=False):
-		self.eventmanager = engine.getEventManager()
+    def __init__(self, engine, regKeys=False, regCmd=False, regMouse=False, regConsole=False, regWidget=False):
+        self.eventmanager = engine.getEventManager()
 
-		fife.IKeyListener.__init__(self)
-		if regKeys:
-			self.eventmanager.addKeyListener(self)
-		fife.ICommandListener.__init__(self)
-		if regCmd:
-			self.eventmanager.addCommandListener(self)
-		fife.IMouseListener.__init__(self)
-		if regMouse:
-			self.eventmanager.addMouseListener(self)
-		fife.ConsoleExecuter.__init__(self)
-		if regConsole:
-			get_manager().getConsole().setConsoleExecuter(self)
+        fife.IKeyListener.__init__(self)
+        if regKeys:
+            self.eventmanager.addKeyListener(self)
+        fife.ICommandListener.__init__(self)
+        if regCmd:
+            self.eventmanager.addCommandListener(self)
+        fife.IMouseListener.__init__(self)
+        if regMouse:
+            self.eventmanager.addMouseListener(self)
+        fife.ConsoleExecuter.__init__(self)
+        if regConsole:
+            get_manager().getConsole().setConsoleExecuter(self)
 
 
-	def mousePressed(self, evt):
-		pass
-	def mouseReleased(self, evt):
-		pass	
-	def mouseEntered(self, evt):
-		pass
-	def mouseExited(self, evt):
-		pass
-	def mouseClicked(self, evt):
-		pass
-	def mouseWheelMovedUp(self, evt):
-		#print "Mounse weel up"
-		pass	
-	def mouseWheelMovedDown(self, evt):
-		#print "Mounse weel down"
-		pass
-	def mouseMoved(self, evt):
-		#print "Mouse moved " + str(evt)
-		pass
-	def mouseDragged(self, evt):
-		pass
-	def keyPressed(self, evt):
-		pass
-	def keyReleased(self, evt):
-		pass
-	def onCommand(self, command):
-		pass
-	def onToolsClick(self):
-		print "No tools set up yet"
-	def onConsoleCommand(self, command):
-		pass
-	def onWidgetAction(self, evt):
-		pass
+    def mousePressed(self, evt):
+        pass
+    def mouseReleased(self, evt):
+        pass
+    def mouseEntered(self, evt):
+        pass
+    def mouseExited(self, evt):
+        pass
+    def mouseClicked(self, evt):
+        pass
+    def mouseWheelMovedUp(self, evt):
+        #print "Mounse weel up"
+        pass
+    def mouseWheelMovedDown(self, evt):
+        #print "Mounse weel down"
+        pass
+    def mouseMoved(self, evt):
+        #print "Mouse moved " + str(evt)
+        pass
+    def mouseDragged(self, evt):
+        pass
+    def keyPressed(self, evt):
+        pass
+    def keyReleased(self, evt):
+        pass
+    def onCommand(self, command):
+        pass
+    def onToolsClick(self):
+        print "No tools set up yet"
+    def onConsoleCommand(self, command):
+        pass
+    def onWidgetAction(self, evt):
+        pass
