@@ -109,7 +109,7 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
             self.aboutWindow = pychan.loadXML('gui/xml/news.xml')
             self.aboutWindow.mapEvents({ 'closeButton' : self.aboutWindow.hide })
             #self.aboutWindow.distributeData({ 'helpText' : open("misc/infotext.txt").read() })
-            self.aboutWindow.distributeData({ 'newsText' :"This is some\ntext"})
+            self.aboutWindow.distributeData({ 'newsText' : open("game_changes.txt").read() })
         self.aboutWindow.show()
 
     def onBoyButtonPress(self):

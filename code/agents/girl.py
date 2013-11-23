@@ -36,7 +36,7 @@ class Girl(Agent):
 #         self.waypoints = ((67, 80), (75, 44))
 #         self.waypoint_counter = 0
         self.hero = self.layer.getInstance('PC')
-        
+
         self.GIRL_SPEED = 3 * float(self.settings.get("rio", "TestAgentSpeed"))
         self.agent.actOnce('stand')
 
@@ -46,7 +46,7 @@ class Girl(Agent):
 
     def onInstanceActionCancelled(self, instance, action):
         pass
-    
+
     def start(self):
         self.idle()
 #         self.follow_hero()
@@ -62,10 +62,13 @@ class Girl(Agent):
     def run(self, location):
         self.state = _STATE_RUN
         self.agent.move('run', location, self.GIRL_SPEED)
-        
+
     def talk(self, target):
         self.state = _STATE_TALK
         self.agent.actOnce('talk', target)
+
+    def moveStep(self, direction):
+        print "girl move " + direction
 
 #     def onInstanceActionFinished(self, instance, action):
 #         if self.state in (_STATE_RUN, _STATE_FOLLOW):
@@ -76,10 +79,10 @@ class Girl(Agent):
 #                 self.follow_hero()
 #             else:
 #                 self.run(self.getNextWaypoint())
-# 
+#
 #     def onInstanceActionCancelled(self, instance, action):
 #         pass
-#     
+#
 #     def getNextWaypoint(self):
 #         self.waypoint_counter += 1
 #         l = fife.Location(self.layer)

@@ -1,0 +1,3 @@
+GAME CHANGES:
+* Switch boy/girl button (with both cameras)
+* Moving boy/girl via keyboard (arrows keys)

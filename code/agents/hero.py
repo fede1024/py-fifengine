@@ -24,6 +24,7 @@
 import random
 from agent import Agent
 #from fife.extensions.fife_settings import Setting
+from fife.fife import Location
 
 #TDS = Setting(app_name="rio_de_hola")
 
@@ -71,4 +72,41 @@ class Hero(Agent):
 		self.idlecounter = 1
 		self.agent.actOnce('talk', target)
 
+	def moveStep(self, direction):
+		location = self.agent.getLocationRef()
+		coords = location.getMapCoordinates()
+		rot = self.agent.getRotation()
 
+		if direction == 'l':
+			rot = (rot+45)%360
+			self.agent.setRotation(rot)
+		elif direction == 'r':
+			rot = (rot-45)%360
+			self.agent.setRotation(rot)
+		elif direction == 'd':
+			rot = (rot+180)%360
+			self.agent.setRotation(rot)
+		elif direction == 'u':
+			if(0 <= rot < 23 or rot >= 338):
+				coords.x += +0.5
+			elif (23 <= rot < 68):
+				coords.x += +0.5
+				coords.y += -0.5
+			elif (68 <= rot < 113):
+				coords.y += -0.5
+			elif (113 <= rot < 158):
+				coords.x += -0.5
+				coords.y += -0.5
+			elif (158 <= rot < 203):
+				coords.x += -0.5
+			elif (203 <= rot < 248):
+				coords.x += -0.5
+				coords.y += +0.5
+			elif (248 <= rot < 293):
+				coords.y += +0.5
+			elif (293 <= rot < 338):
+				coords.x += +0.5
+				coords.y += +0.5
+			nl = Location(location)
+			nl.setMapCoordinates(coords)
+			self.run(nl)

@@ -317,6 +317,9 @@ class World(EventListenerBase):
                 self.cameras['main'].setZoom(1.0)
         elif keyval in (fife.Key.LEFT_CONTROL, fife.Key.RIGHT_CONTROL):
             self.ctrldown = True
+        elif keyval in (fife.Key.LEFT, fife.Key.RIGHT, fife.Key.UP, fife.Key.DOWN):
+            self.mainAgent.moveStep({fife.Key.LEFT:'l', fife.Key.RIGHT:'r', fife.Key.UP:'u', fife.Key.DOWN:'d'}[keyval])
+            
 
     def keyReleased(self, evt):
         keyval = evt.getKey().getValue()
@@ -325,11 +328,11 @@ class World(EventListenerBase):
 
     def mouseWheelMovedUp(self, evt):
         if self.ctrldown:
-            self.cameras['main'].setZoom(self.cameras['main'].getZoom() * 1.10)
+            self.cameras['main'].setZoom(self.cameras['main'].getZoom() * 1.05)
 
     def mouseWheelMovedDown(self, evt):
         if self.ctrldown:
-            self.cameras['main'].setZoom(self.cameras['main'].getZoom() / 1.10)
+            self.cameras['main'].setZoom(self.cameras['main'].getZoom() / 1.05)
 
     def changeRotation(self):
         """
