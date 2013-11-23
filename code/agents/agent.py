@@ -49,6 +49,13 @@ class Agent(fife.InstanceActionListener):
 	def start(self):
 		raise ProgrammingError('No start defined for Agent')
 
+	def doAction(self, name, reactionInstance, reactionAgent):
+		print "No action '%s' defined for %s to %s (agent %s)."%(name, self.agentName, reactionInstance.getObject().getId(), \
+																None if not reactionAgent else reactionAgent.agentName)
+
+	def doReaction(self, name, actionAgent):
+		print "No reaction for action '%s' defined for %s to %s."%(name, self.agentName, actionAgent.agentName)
+		
 # Not unique in map agents
 def create_anonymous_agents(settings, model, objectName, layer, agentClass):
 	agents = []

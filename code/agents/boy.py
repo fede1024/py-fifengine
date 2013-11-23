@@ -21,7 +21,25 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 # ####################################################################
 
+import random
 from humanAgent import HumanAgent
 
-class Girl(HumanAgent):
-    pass
+# Define constants
+_STATE_KICK = xrange(5)
+
+class Boy(HumanAgent):
+	def onInstanceActionFinished(self, instance, action):
+		#print "Action finished: " + str(action.getId())
+		self.idle()
+		if action.getId() != 'stand':
+			self.idlecounter = 1
+		else:
+			self.idlecounter += 1
+		if self.idlecounter % 7 == 0:
+			heroTexts = self.settings.get("rio", "boyIdleTexts")
+			txtindex = random.randint(0, len(heroTexts) - 1)
+			instance.say(heroTexts[txtindex], 2500)
+
+	def kick(self, target):
+		self.state = _STATE_KICK
+		self.agent.actOnce('kick', target)

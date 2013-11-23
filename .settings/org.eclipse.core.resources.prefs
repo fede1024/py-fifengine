@@ -1,8 +1,9 @@
 eclipse.preferences.version=1
 encoding//code/agents/agent.py=utf-8
 encoding//code/agents/beekeeper.py=utf-8
+encoding//code/agents/boy.py=utf-8
 encoding//code/agents/girl.py=utf-8
-encoding//code/agents/hero.py=utf-8
+encoding//code/agents/humanAgent.py=utf-8
 encoding//code/common/common.py=utf-8
 encoding//code/common/eventlistenerbase.py=utf-8
 encoding//code/world.py=utf-8

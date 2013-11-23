@@ -21,33 +21,22 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 # ####################################################################
 
-import random
 from agent import Agent
-#from fife.extensions.fife_settings import Setting
+from fife import fife
 from fife.fife import Location
-
-#TDS = Setting(app_name="rio_de_hola")
 
 # Define constants
 _STATE_NONE, _STATE_IDLE, _STATE_RUN, _STATE_KICK, _STATE_TALK = xrange(5)
 
-class Hero(Agent):
+class HumanAgent(Agent):
+	""" This class specify a general agent that can be controlled by the user """
 	def __init__(self, settings, model, agentName, layer, uniqInMap=True):
-		super(Hero, self).__init__(settings, model, agentName, layer, uniqInMap)
+		super(HumanAgent, self).__init__(settings, model, agentName, layer, uniqInMap)
 		self.state = _STATE_NONE
 		self.idlecounter = 1
 
 	def onInstanceActionFinished(self, instance, action):
-		#print "Action finished: " + str(action.getId())
 		self.idle()
-		if action.getId() != 'stand':
-			self.idlecounter = 1
-		else:
-			self.idlecounter += 1
-		if self.idlecounter % 7 == 0:
-			heroTexts = self.settings.get("rio", "boyIdleTexts")
-			txtindex = random.randint(0, len(heroTexts) - 1)
-			instance.say(heroTexts[txtindex], 2500)
 
 	def onInstanceActionCancelled(self, instance, action):
 		pass
@@ -63,14 +52,16 @@ class Hero(Agent):
 		self.state = _STATE_RUN
 		self.agent.move('run', location, 4 * self.settings.get("rio", "TestAgentSpeed"))
 
-	def kick(self, target):
-		self.state = _STATE_KICK
-		self.agent.actOnce('kick', target)
-
 	def talk(self, target):
 		self.state = _STATE_TALK
 		self.idlecounter = 1
 		self.agent.actOnce('talk', target)
+		
+	def keyPressed(self, keyval):
+		if keyval in (fife.Key.LEFT, fife.Key.RIGHT, fife.Key.UP, fife.Key.DOWN):
+			self.moveStep({fife.Key.LEFT:'l', fife.Key.RIGHT:'r', fife.Key.UP:'u', fife.Key.DOWN:'d'}[keyval])
+		else:
+			print "Unhandled key press"
 
 	def moveStep(self, direction):
 		location = self.agent.getLocationRef()
@@ -79,12 +70,15 @@ class Hero(Agent):
 
 		if direction == 'l':
 			rot = (rot+45)%360
+			self.idle()
 			self.agent.setRotation(rot)
 		elif direction == 'r':
 			rot = (rot-45)%360
+			self.idle()
 			self.agent.setRotation(rot)
 		elif direction == 'd':
 			rot = (rot+180)%360
+			self.idle()
 			self.agent.setRotation(rot)
 		elif direction == 'u':
 			if(0 <= rot < 23 or rot >= 338):

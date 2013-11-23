@@ -29,7 +29,7 @@ from fife.extensions.pychan.internal import get_manager
 from code.common.eventlistenerbase import EventListenerBase
 from fife.extensions.savers import saveMapFile
 from fife.extensions.soundmanager import SoundManager
-from agents.hero import Hero
+from agents.boy import Boy
 from agents.girl import Girl
 from agents.beekeeper import Beekeeper
 from agents.agent import create_anonymous_agents
@@ -84,15 +84,16 @@ class World(EventListenerBase):
         self.instancemenu.instance = instance
 
         # Add the buttons according to circumstances.
-        self.instancemenu.addChild(self.dynamic_widgets['inspectButton'])
         target_distance = self.mainAgent.agent.getLocationRef().getLayerDistanceTo(instance.getLocationRef())
+        
+        self.instancemenu.addChild(self.dynamic_widgets['inspect'])
         if target_distance > 3.0:
-            self.instancemenu.addChild(self.dynamic_widgets['moveButton'])
+            self.instancemenu.addChild(self.dynamic_widgets['move'])
         else:
             if self.instance_to_agent.has_key(instance.getFifeId()):
-                self.instancemenu.addChild(self.dynamic_widgets['talkButton'])
-                if self.mainAgent == self.hero:
-                    self.instancemenu.addChild(self.dynamic_widgets['kickButton'])
+                self.instancemenu.addChild(self.dynamic_widgets['talk'])
+                if self.mainAgent == self.boy:
+                    self.instancemenu.addChild(self.dynamic_widgets['kick'])
         # And show it :)
         self.instancemenu.position = (clickpoint.x, clickpoint.y)
         self.instancemenu.show()
@@ -104,13 +105,13 @@ class World(EventListenerBase):
         The buttons are removed and later re-added if appropiate.
         """
         self.hide_instancemenu()
-        dynamicbuttons = ('moveButton', 'talkButton', 'kickButton', 'inspectButton')
+        dynamicbuttons = ('move', 'talk', 'kick', 'inspect')
         self.instancemenu = pychan.loadXML('gui/xml/instancemenu.xml')
         self.instancemenu.mapEvents({
-            'moveButton' : self.onMoveButtonPress,
-            'talkButton' : self.onTalkButtonPress,
-            'kickButton' : self.onKickButtonPress,
-            'inspectButton' : self.onInspectButtonPress,
+            'move' : lambda: self.onAction('move'),
+            'talk' : lambda: self.onAction('talk'),
+            'kick' : lambda: self.onAction('kick'),
+            'inspect' : lambda: self.onAction('inspect'),
         })
         for btn in dynamicbuttons:
             self.dynamic_widgets[btn] = self.instancemenu.findChild(name=btn)
@@ -129,7 +130,7 @@ class World(EventListenerBase):
             
         self.map, self.agentlayer = None, None
         self.cameras = {}
-        self.hero, self.girl, self.clouds, self.beekeepers = None, None, [], []
+        self.boy, self.girl, self.clouds, self.beekeepers = None, None, [], []
         self.cur_cam2_x, self.initial_cam2_x, self.cam2_scrolling_right = 0, 0, True
         self.target_rotation = 0
         self.instance_to_agent = {}
@@ -166,10 +167,10 @@ class World(EventListenerBase):
         to the python agents for later reference.
         """
         self.agentlayer = self.map.getLayer('TechdemoMapGroundObjectLayer')
-        self.hero = Hero(TDS, self.model, 'PC', self.agentlayer)
-        self.instance_to_agent[self.hero.agent.getFifeId()] = self.hero
-        self.mainAgent = self.hero
-        self.hero.start()
+        self.boy = Boy(TDS, self.model, 'PC', self.agentlayer)
+        self.instance_to_agent[self.boy.agent.getFifeId()] = self.boy
+        self.mainAgent = self.boy
+        self.boy.start()
 
         self.girl = Girl(TDS, self.model, 'NPC:girl', self.agentlayer)
         self.instance_to_agent[self.girl.agent.getFifeId()] = self.girl
@@ -185,7 +186,7 @@ class World(EventListenerBase):
         Before we can actually see something on screen we have to specify the render setup.
         This is done through Camera objects which offer a viewport on the map.
 
-        For this techdemo two cameras are used. One follows the hero(!) via 'attach'
+        For this techdemo two cameras are used. One follows the boy(!) via 'attach'
         the other one scrolls around a bit (see the pump function).
         """
         camera_prefix = self.filename.rpartition('.')[0] # Remove file extension
@@ -215,7 +216,7 @@ class World(EventListenerBase):
         renderer = self.cameras['main'].getRenderer('GridRenderer')
         renderer.activateAllLayers(self.map)
         
-        # The small camera shouldn't be cluttered by the 'humm di dums' of our hero.
+        # The small camera shouldn't be cluttered by the 'humm di dums' of our boy.
         # So we disable the renderer simply by setting its font to None.
         renderer = fife.FloatingTextRenderer.getInstance(self.cameras['small'])
         renderer.setFont(None)
@@ -250,7 +251,7 @@ class World(EventListenerBase):
         
         # Set up the second camera
         # NOTE: We need to explicitly call setLocation, there's a bit of a messup in the Camera code.
-        self.cameras['small'].setLocation(self.hero.agent.getLocation())
+        self.cameras['small'].setLocation(self.boy.agent.getLocation())
         self.cameras['small'].attach(self.girl.agent)
         self.cameras['small'].setOverlayColor(100,0,0,100)
         self.cameras['small'].setEnabled(False)
@@ -317,9 +318,8 @@ class World(EventListenerBase):
                 self.cameras['main'].setZoom(1.0)
         elif keyval in (fife.Key.LEFT_CONTROL, fife.Key.RIGHT_CONTROL):
             self.ctrldown = True
-        elif keyval in (fife.Key.LEFT, fife.Key.RIGHT, fife.Key.UP, fife.Key.DOWN):
-            self.mainAgent.moveStep({fife.Key.LEFT:'l', fife.Key.RIGHT:'r', fife.Key.UP:'u', fife.Key.DOWN:'d'}[keyval])
-            
+        else:
+            self.mainAgent.keyPressed(keyval)
 
     def keyReleased(self, evt):
         keyval = evt.getKey().getValue()
@@ -383,12 +383,12 @@ class World(EventListenerBase):
             renderer = fife.LightRenderer.getInstance(self.cameras['main'])
 
             renderer.removeAll("beekeeper_simple_light")
-            renderer.removeAll("hero_simple_light")
+            renderer.removeAll("boy")
             renderer.removeAll("girl_simple_light")
 
             if self.lightmodel == 1:
-                node = fife.RendererNode(self.hero.agent)
-                renderer.addSimpleLight("hero_simple_light", node, self.light_sources, 64, 32, 1, 1, 255, 255, 255)
+                node = fife.RendererNode(self.boy.agent)
+                renderer.addSimpleLight("boy", node, self.light_sources, 64, 32, 1, 1, 255, 255, 255)
 
                 node = fife.RendererNode(self.girl.agent)       
                 renderer.addSimpleLight("girl_simple_light", node, self.light_sources, 64, 32, 1, 1, 255, 255, 255)
@@ -409,6 +409,17 @@ class World(EventListenerBase):
     def onMoveButtonPress(self):
         self.hide_instancemenu()
         self.mainAgent.run(self.instancemenu.instance.getLocationRef())
+
+    def onAction(self, name):
+        """ self.mainAgent is performing action 'name' relate to some instance menu"""
+        self.hide_instancemenu()
+        destInstance = self.instancemenu.instance
+        if self.instance_to_agent.has_key(destInstance.getFifeId()):        # The reactor is an agent
+            destAgent = self.instance_to_agent[destInstance.getFifeId()]
+            self.mainAgent.doAction(name, destInstance, destAgent)
+            destAgent.doReaction(name, self.mainAgent)
+        else:                                                                                                               # The reactor is not an agent
+            self.mainAgent.doAction(name, destInstance, None)
 
     def onTalkButtonPress(self):
         self.hide_instancemenu()
@@ -452,11 +463,11 @@ class World(EventListenerBase):
 
     def switchMainAgentTo(self, name):
         if name == 'boy':
-            self.mainAgent = self.hero
+            self.mainAgent = self.boy
             other = self.girl
         elif name == 'girl':
             self.mainAgent = self.girl
-            other = self.hero
+            other = self.boy
         else:
             return
         self.cameras['main'].attach(self.mainAgent.agent)
