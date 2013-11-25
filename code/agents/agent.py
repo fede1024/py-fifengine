@@ -53,6 +53,9 @@ class Agent(fife.InstanceActionListener):
     def start(self):
         raise ProgrammingError('No start defined for Agent')
 
+    def getActionsList(self, target_instance, target_agent, distance):
+        return []
+    
     def doAction(self, name, reactionInstance, reactionAgent):
         print "No action '%s' defined for %s to %s (agent %s)."%(name, self.agentName, reactionInstance.getObject().getId(), \
                                                                 None if not reactionAgent else reactionAgent.agentName)

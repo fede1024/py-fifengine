@@ -86,14 +86,28 @@ class World(EventListenerBase):
         # Add the buttons according to circumstances.
         target_distance = self.mainAgent.agent.getLocationRef().getLayerDistanceTo(instance.getLocationRef())
         
-        self.instancemenu.addChild(self.dynamic_widgets['inspect'])
-        if target_distance > 3.0:
-            self.instancemenu.addChild(self.dynamic_widgets['move'])
+        if self.instance_to_agent.has_key(instance.getFifeId()):
+            target_agent = self.instance_to_agent[instance.getFifeId()]
         else:
-            if self.instance_to_agent.has_key(instance.getFifeId()):
-                self.instancemenu.addChild(self.dynamic_widgets['talk'])
-                if self.mainAgent == self.boy:
-                    self.instancemenu.addChild(self.dynamic_widgets['kick'])
+            target_agent = None
+            
+        actionList = self.mainAgent.getActionsList(instance, target_agent, target_distance)
+        print ">>", actionList
+        
+        for action in actionList:
+            if self.dynamic_widgets.has_key(action): 
+                self.instancemenu.addChild(self.dynamic_widgets[action])
+            else:
+                print "ERROR: no defined action %s for instance menu."%action
+        
+#         self.instancemenu.addChild(self.dynamic_widgets['inspect'])
+#         if target_distance > 3.0:
+#             self.instancemenu.addChild(self.dynamic_widgets['move'])
+#         else:
+#             if self.instance_to_agent.has_key(instance.getFifeId()):
+#                 self.instancemenu.addChild(self.dynamic_widgets['talk'])
+#                 if self.mainAgent == self.boy:
+#                     self.instancemenu.addChild(self.dynamic_widgets['kick'])
         # And show it :)
         self.instancemenu.position = (clickpoint.x, clickpoint.y)
         self.instancemenu.show()
@@ -105,7 +119,7 @@ class World(EventListenerBase):
         The buttons are removed and later re-added if appropiate.
         """
         self.hide_instancemenu()
-        dynamicbuttons = ('move', 'talk', 'kick', 'inspect')
+        dynamicbuttons = ('move', 'talk', 'kick', 'inspect')   # Make this automatic?
         self.instancemenu = pychan.loadXML('gui/xml/instancemenu.xml')
         self.instancemenu.mapEvents({
             'move' : lambda: self.onAction('move'),
@@ -367,7 +381,7 @@ class World(EventListenerBase):
         for i in instances:
             aid = i.getObject().getId() 
             me = self.mainAgent.agent.getObject().getId()
-            if (aid in ('girl', 'beekeeper', 'boy')) and aid != me: # TODO completare qqui
+            if (aid in ('girl', 'beekeeper', 'boy')) and aid != me: # TODO completare qui
                 renderer.addOutlined(i, 173, 255, 47, 2)
 
     def lightIntensity(self, value):

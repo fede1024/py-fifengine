@@ -104,6 +104,16 @@ class HumanAgent(Agent):
             nl = Location(location)
             nl.setMapCoordinates(coords)
             self.run(nl)
+            
+    def getActionsList(self, target_instance, target_agent, distance):
+        actions = ['inspect']
+        if distance > 3.0:
+            actions.append('move')
+        else:
+            if target_agent:  # If the target is an agent
+                actions.append('talk');
+        inherited_actions = super(HumanAgent, self).getActionsList(target_instance, target_agent, distance)
+        return inherited_actions + actions
 
     # Execute before default doAction of Agent
     def doAction(self, name, reactionInstance, reactionAgent):
@@ -113,6 +123,5 @@ class HumanAgent(Agent):
             self.agent.say('\n'.join(saytext), 3500)
         elif name in ("move", "talk"):
             self.run(reactionInstance.getLocationRef())
-            print name, reactionInstance, reactionInstance.getLocationRef()
         else:
             super(HumanAgent, self).doAction(name, reactionInstance, reactionAgent)
