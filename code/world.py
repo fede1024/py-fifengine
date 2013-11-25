@@ -314,11 +314,6 @@ class World(EventListenerBase):
             self.cameras['main'].refresh()
         elif keystr == 'o':
             self.target_rotation = (self.target_rotation + 90) % 360
-        elif keystr == 'x':
-            if self.mainAgent.agent.getObject().getId() == 'girl':
-                self.switchMainAgentTo('boy')
-            elif self.mainAgent.agent.getObject().getId() == 'boy':
-                self.switchMainAgentTo('girl')
         elif keystr == '2':
             self.lightIntensity(0.1)
         elif keystr == '1':
@@ -425,10 +420,13 @@ class World(EventListenerBase):
         destInstance = self.instancemenu.instance
         if self.instance_to_agent.has_key(destInstance.getFifeId()):        # The reactor is an agent
             destAgent = self.instance_to_agent[destInstance.getFifeId()]
-            self.mainAgent.doAction(name, destInstance, destAgent)
-            destAgent.doReaction(name, self.mainAgent, destInstance)
+            def callback():
+                print "Performing reaction to", name
+                destAgent.doReaction(name, self.mainAgent, destInstance)
+            print "Performing action", name
+            self.mainAgent.doAction(name, destInstance, destAgent, callback)
         else:                                                                                                               # The reactor is not an agent
-            self.mainAgent.doAction(name, destInstance, None)
+            self.mainAgent.doAction(name, destInstance, None) ## TODO fixme
 
     def pump(self):
         """

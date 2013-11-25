@@ -37,6 +37,8 @@ class HumanAgent(Agent):
 
     def onInstanceActionFinished(self, instance, action):
         self.idle()
+#         print "Human action finished", instance.getObject().getId()
+        super(HumanAgent, self).onInstanceActionFinished(instance, action)
 
     def onInstanceActionCancelled(self, instance, action):
         pass
@@ -116,7 +118,8 @@ class HumanAgent(Agent):
         return inherited_actions + actions
 
     # Execute before default doAction of Agent
-    def doAction(self, name, reactionInstance, reactionAgent):
+    def doAction(self, name, reactionInstance, reactionAgent, callback):
+        self.callback = callback
         if name=="inspect":
             saytext = []
             saytext.append('%s' % reactionInstance.getObject().getId())
@@ -124,4 +127,4 @@ class HumanAgent(Agent):
         elif name in ("move", "talk"):
             self.run(reactionInstance.getLocationRef())
         else:
-            super(HumanAgent, self).doAction(name, reactionInstance, reactionAgent)
+            super(HumanAgent, self).doAction(name, reactionInstance, reactionAgent, callback)

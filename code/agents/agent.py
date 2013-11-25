@@ -37,12 +37,16 @@ class Agent(fife.InstanceActionListener):
         self.model = model
         self.agentName = agentName
         self.layer = layer
+        self.callback = None
         if uniqInMap:
             self.agent = layer.getInstance(agentName)
             self.agent.addActionListener(self)
 
     def onInstanceActionFinished(self, instance, action):
-        raise ProgrammingError('No OnActionFinished defined for Agent')
+#         print "Agent action finished", instance.getObject().getId()
+        if self.callback:
+            self.callback()
+            self.callback = None
 
     def onInstanceActionCancelled(self, instance, action):
         raise ProgrammingError('No OnActionFinished defined for Agent')
@@ -56,7 +60,7 @@ class Agent(fife.InstanceActionListener):
     def getActionsList(self, target_instance, target_agent, distance):
         return []
     
-    def doAction(self, name, reactionInstance, reactionAgent):
+    def doAction(self, name, reactionInstance, reactionAgent, callback):
         print "No action '%s' defined for %s to %s (agent %s)."%(name, self.agentName, reactionInstance.getObject().getId(), \
                                                                 None if not reactionAgent else reactionAgent.agentName)
 

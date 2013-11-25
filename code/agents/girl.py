@@ -29,18 +29,9 @@ TDS = Setting(app_name="rio_de_hola")
 
 class Girl(HumanAgent):
 
-    # Execute before default doReaction of Agent
-    def doReaction(self, name, actionAgent, reactionInstance):
-        if name=="talk":
-            girlTexts = TDS.get("rio", "girlTexts")
-            reactionInstance.say(random.choice(girlTexts), 5000)
-        elif name=="kick":
-            self.agent.say("Hey!!!", 3500)
-        else:
-            super(Girl, self).doReaction(name, actionAgent, reactionInstance)
-
     # Execute before default doAction of Agent
-    def doAction(self, name, reactionInstance, reactionAgent):
+    def doAction(self, name, reactionInstance, reactionAgent, callback):
+        self.callback = callback
         if name=="inspect":
             saytext = []
             saytext.append('%s' % reactionInstance.getObject().getId())
@@ -48,4 +39,15 @@ class Girl(HumanAgent):
         elif name=="move":
             self.run(reactionInstance.getLocationRef())
         else:
-            super(Girl, self).doAction(name, reactionInstance, reactionAgent)
+            super(Girl, self).doAction(name, reactionInstance, reactionAgent, callback)
+
+    # Execute before default doReaction of Agent
+    def doReaction(self, name, actionAgent, reactionInstance):
+        if name=="talk":
+            girlTexts = TDS.get("rio", "girlTexts")
+            reactionInstance.say(random.choice(girlTexts), 5000)
+            self.run(actionAgent.agent.getLocationRef())
+        elif name=="kick":
+            self.agent.say("Hey!!!", 3500)
+        else:
+            super(Girl, self).doReaction(name, actionAgent, reactionInstance)

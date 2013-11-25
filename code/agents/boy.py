@@ -33,7 +33,6 @@ _STATE_KICK = xrange(5)
 class Boy(HumanAgent):
     def onInstanceActionFinished(self, instance, action):
         #print "Action finished: " + str(action.getId())
-        self.idle()
         if action.getId() != 'stand':
             self.idlecounter = 1
         else:
@@ -42,6 +41,8 @@ class Boy(HumanAgent):
             heroTexts = self.settings.get("rio", "boyIdleTexts")
             txtindex = random.randint(0, len(heroTexts) - 1)
             instance.say(heroTexts[txtindex], 2500)
+#         print "Boy action finished", instance.getObject().getId()
+        super(Boy, self).onInstanceActionFinished(instance, action)
 
     def kick(self, target):
         self.state = _STATE_KICK
@@ -56,16 +57,18 @@ class Boy(HumanAgent):
         return inherited_actions + actions
 
     # Execute before default doAction of Agent
-    def doAction(self, name, reactionInstance, reactionAgent):
+    def doAction(self, name, reactionInstance, reactionAgent, callback):
+        self.callback = callback
         if name=="kick":
             self.kick(reactionInstance.getLocationRef())
         else:
-            super(Boy, self).doAction(name, reactionInstance, reactionAgent)
+            super(Boy, self).doAction(name, reactionInstance, reactionAgent, callback)
 
     # Execute before default doReaction of Agent
     def doReaction(self, name, actionAgent, reactionInstance):
         if name=="talk":
             texts = TDS.get("rio", "boyTexts")
             reactionInstance.say(random.choice(texts), 5000)
+            self.run(actionAgent.agent.getLocationRef())
         else:
             super(Boy, self).doReaction(name, actionAgent, reactionInstance)

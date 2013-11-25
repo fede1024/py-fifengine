@@ -26,7 +26,7 @@
 
 import sys, os
 
-#fife_path = os.path.join('..','..','engine','python')
+fife_path = os.path.join('..','..','engine','python')
 fife_path = os.path.join('/home','federico','tmp','sdproject','engine','python')
 print "Importing fife from: "
 print fife_path
@@ -84,6 +84,12 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
             evt.consume()
         elif keystr == 'p':
             self.engine.getRenderBackend().captureScreen('screenshot.png')
+            evt.consume()
+        elif keystr == 'x':
+            if self.world.mainAgent.agent.getObject().getId() == 'girl':
+                self.onGirlButtonPress()
+            elif self.world.mainAgent.agent.getObject().getId() == 'boy':
+                self.onBoyButtonPress()
             evt.consume()
 
     def onCommand(self, command):

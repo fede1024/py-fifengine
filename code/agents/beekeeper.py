@@ -56,5 +56,6 @@ class Beekeeper(Agent):
         if name=="talk":
             texts = TDS.get("rio", "beekeeperTexts")
             reactionInstance.say(random.choice(texts), 5000)
+            #self.agent.move('run', actionAgent.agent.getLocationRef(), 4 * self.settings.get("rio", "TestAgentSpeed"))  # Beekeper cannot run
         else:
             super(Beekeeper, self).doReaction(name, actionAgent, reactionInstance)
