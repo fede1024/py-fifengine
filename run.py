@@ -62,8 +62,14 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
             'quitButton' : self.onQuitButtonPress,
             'aboutButton' : self.onAboutButtonPress,
             'optionsButton' : TDS.showSettingsDialog,
-            'newsButton' : self.onNewsButtonPress
+            'newsButton' : self.onNewsButtonPress,
+            'soundButton' : self.onSoundButtonPress
         })
+        button =  self.rootpanel.getNamedChildren()['soundButton'][0]
+        if int(TDS.get("FIFE", "PlaySounds")):
+            button.text = unicode("Music:  ON", "utf-8")
+        else:
+            button.text = unicode("Music: OFF", "utf-8")
         self.rootpanel.show()
 
         self.character_gui = pychan.loadXML('gui/xml/player.xml')
@@ -117,6 +123,21 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
             #self.aboutWindow.distributeData({ 'helpText' : open("misc/infotext.txt").read() })
             self.aboutWindow.distributeData({ 'newsText' : open("game_changes.txt").read() })
         self.aboutWindow.show()
+
+    def onSoundButtonPress(self):
+        button =  self.rootpanel.getNamedChildren()['soundButton'][0]
+        if (self.world.soundActive == True):
+            self.world.music.stop()
+            self.world.soundActive = False
+            button.text = unicode("Music: OFF", "utf-8")
+            TDS.set("FIFE", "PlaySounds", False)
+            TDS.saveSettings()
+        else:
+            self.world.music.play()
+            self.world.soundActive = True
+            button.text = unicode("Music:  ON", "utf-8")
+            TDS.set("FIFE", "PlaySounds", True)
+            TDS.saveSettings()
 
     def onBoyButtonPress(self):
         self.girlButton.show()

@@ -170,6 +170,17 @@ class World(EventListenerBase):
         #Set background color
         self.engine.getRenderBackend().setBackgroundColor(80,80,255)
 
+        # play track as background music
+        self.music = self.soundmanager.createSoundEmitter('music/hang.ogg')
+        self.music.looping = True
+        self.music.gain = 128
+
+        if int(TDS.get("FIFE", "PlaySounds")):
+            self.music.play()
+            self.soundActive = True
+        else:
+            self.soundActive = False
+            
     def initAgents(self):
         """
         Setup agents.
@@ -181,21 +192,21 @@ class World(EventListenerBase):
         to the python agents for later reference.
         """
         self.agentlayer = self.map.getLayer('TechdemoMapGroundObjectLayer')
-        self.boy = Boy(TDS, self.model, 'PC', self.agentlayer)
+        self.boy = Boy(TDS, self.model, 'PC', self.agentlayer, self.soundmanager)
         self.instance_to_agent[self.boy.agent.getFifeId()] = self.boy
         self.mainAgent = self.boy
         self.boy.start()
 
-        self.girl = Girl(TDS, self.model, 'NPC:girl', self.agentlayer)
+        self.girl = Girl(TDS, self.model, 'NPC:girl', self.agentlayer, self.soundmanager)
         self.instance_to_agent[self.girl.agent.getFifeId()] = self.girl
         self.girl.start()
 
         for i in xrange(10):
-            bee = Bee(TDS, self.model, 'bee' + str(i), self.agentlayer)
+            bee = Bee(TDS, self.model, 'bee' + str(i), self.agentlayer, self.soundmanager)
             self.instance_to_agent[bee.agent.getFifeId()] = bee
             bee.start()
 
-        self.beekeepers = create_anonymous_agents(TDS, self.model, 'beekeeper', self.agentlayer, Beekeeper)
+        self.beekeepers = create_anonymous_agents(TDS, self.model, 'beekeeper', self.agentlayer, Beekeeper, self.soundmanager)
         for beekeeper in self.beekeepers:
             self.instance_to_agent[beekeeper.agent.getFifeId()] = beekeeper
             beekeeper.start()

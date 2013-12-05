@@ -3,4 +3,5 @@
 	<Button name="aboutButton" text="About"/>
 	<Button name="optionsButton" text="Options"/>
 	<Button name="newsButton" text="News"/>
+	<Button name="soundButton" text="Music:  ON"/>
 </HBox>

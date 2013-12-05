@@ -76,8 +76,8 @@ class Bee(Agent):
                 my_coords.x += dx
                 my_coords.y += dy
                 nl.setMapCoordinates(my_coords)
-                self.angry = True
                 self.fly(nl)
+                self.angry = True
             else:
                 self.agent.say("You missed me :P", 3500)
         else:

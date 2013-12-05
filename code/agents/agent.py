@@ -31,13 +31,14 @@ TDS = Setting(app_name="rio_de_hola")
 # uniqInMap => there is a specific action litener for that agent
 
 class Agent(fife.InstanceActionListener):
-    def __init__(self, settings, model, agentName, layer, uniqInMap=True):
+    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True):
         fife.InstanceActionListener.__init__(self)
         self.settings = settings
         self.model = model
         self.agentName = agentName
         self.layer = layer
         self.callback = None
+        self.soundmanager = soundmanager
         if uniqInMap:
             self.agent = layer.getInstance(agentName)
             self.agent.addActionListener(self)
@@ -72,14 +73,14 @@ class Agent(fife.InstanceActionListener):
             print "No defined reaction for action '%s' for %s to %s."%(name, self.agentName, actionAgent.agentName)
 
 # Not unique in map agents
-def create_anonymous_agents(settings, model, objectName, layer, agentClass):
+def create_anonymous_agents(settings, model, objectName, layer, agentClass, soundmanager):
     agents = []
     instances = [a for a in layer.getInstances() if a.getObject().getId() == objectName]
     i = 0
     for a in instances:
         agentName = '%s:i:%d' % (objectName, i)
         i += 1
-        agent = agentClass(settings, model, agentName, layer, False)
+        agent = agentClass(settings, model, agentName, layer, soundmanager, False)
         agent.agent = a
         a.addActionListener(agent)
         agents.append(agent)

@@ -30,10 +30,12 @@ _STATE_NONE, _STATE_IDLE, _STATE_RUN, _STATE_KICK, _STATE_TALK = xrange(5)
 
 class HumanAgent(Agent):
     """ This class specify a general agent that can be controlled by the user """
-    def __init__(self, settings, model, agentName, layer, uniqInMap=True):
-        super(HumanAgent, self).__init__(settings, model, agentName, layer, uniqInMap)
+    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True):
+        super(HumanAgent, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
         self.state = _STATE_NONE
         self.idlecounter = 1
+        self.footSound = self.soundmanager.createSoundEmitter('sounds/footstep.ogg')
+        self.footSound.looping = True
 
     def onInstanceActionFinished(self, instance, action):
         self.idle()
@@ -49,8 +51,11 @@ class HumanAgent(Agent):
     def idle(self):
         self.state = _STATE_IDLE
         self.agent.actOnce('stand')
+        self.footSound.stop()
 
     def run(self, location):
+        if self.state != _STATE_RUN:
+            self.footSound.play()
         self.state = _STATE_RUN
         self.agent.move('run', location, 4 * self.settings.get("rio", "TestAgentSpeed"))
 
@@ -62,8 +67,6 @@ class HumanAgent(Agent):
     def keyPressed(self, keyval):
         if keyval in (fife.Key.LEFT, fife.Key.RIGHT, fife.Key.UP, fife.Key.DOWN):
             self.moveStep({fife.Key.LEFT:'l', fife.Key.RIGHT:'r', fife.Key.UP:'u', fife.Key.DOWN:'d'}[keyval])
-        else:
-            print "Unhandled key press"
 
     def moveStep(self, direction):
         location = self.agent.getLocationRef()
