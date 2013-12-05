@@ -109,7 +109,7 @@ class HumanAgent(Agent):
             
     def getActionsList(self, target_instance, target_agent, distance):
         actions = ['inspect']
-        if distance > 3.0:
+        if distance > 1.5:
             actions.append('move')
         else:
             if target_agent:  # If the target is an agent

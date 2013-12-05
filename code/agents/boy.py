@@ -50,7 +50,7 @@ class Boy(HumanAgent):
 
     def getActionsList(self, target_instance, target_agent, distance):
         actions = []
-        if distance < 3.0:
+        if distance < 1.5:
             if target_agent:  # If the target is an agent
                 actions.append('kick');
         inherited_actions = super(Boy, self).getActionsList(target_instance, target_agent, distance)

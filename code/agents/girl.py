@@ -24,6 +24,7 @@
 from humanAgent import HumanAgent
 import random
 from fife.extensions.fife_settings import Setting
+from fife.fife import Location
 
 TDS = Setting(app_name="rio_de_hola")
 
@@ -49,5 +50,15 @@ class Girl(HumanAgent):
             self.run(actionAgent.agent.getLocationRef())
         elif name=="kick":
             self.agent.say("Hey!!!", 3500)
+            location = self.agent.getLocationRef()
+            my_coords = location.getMapCoordinates()
+            his_coords = actionAgent.agent.getLocationRef().getMapCoordinates()
+            dx = my_coords.x - his_coords.x
+            dy = my_coords.y - his_coords.y
+            nl = Location(location)
+            my_coords.x += dx
+            my_coords.y += dy
+            nl.setMapCoordinates(my_coords)
+            self.run(nl)
         else:
             super(Girl, self).doReaction(name, actionAgent, reactionInstance)

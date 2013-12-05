@@ -22,7 +22,6 @@
 # ####################################################################
 
 from fife import fife
-import random
 from fife.extensions import pychan
 from fife.extensions.pychan.internal import get_manager
 
@@ -31,6 +30,7 @@ from fife.extensions.savers import saveMapFile
 from fife.extensions.soundmanager import SoundManager
 from agents.boy import Boy
 from agents.girl import Girl
+from agents.bee import Bee
 from agents.beekeeper import Beekeeper
 from agents.agent import create_anonymous_agents
 from fife.extensions.fife_settings import Setting
@@ -189,6 +189,11 @@ class World(EventListenerBase):
         self.girl = Girl(TDS, self.model, 'NPC:girl', self.agentlayer)
         self.instance_to_agent[self.girl.agent.getFifeId()] = self.girl
         self.girl.start()
+
+        for i in xrange(10):
+            bee = Bee(TDS, self.model, 'bee' + str(i), self.agentlayer)
+            self.instance_to_agent[bee.agent.getFifeId()] = bee
+            bee.start()
 
         self.beekeepers = create_anonymous_agents(TDS, self.model, 'beekeeper', self.agentlayer, Beekeeper)
         for beekeeper in self.beekeepers:
@@ -426,7 +431,7 @@ class World(EventListenerBase):
             print "Performing action", name
             self.mainAgent.doAction(name, destInstance, destAgent, callback)
         else:                                                                                                               # The reactor is not an agent
-            self.mainAgent.doAction(name, destInstance, None) ## TODO fixme
+            self.mainAgent.doAction(name, destInstance, None, None)
 
     def pump(self):
         """
