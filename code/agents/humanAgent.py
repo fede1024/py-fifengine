@@ -117,6 +117,8 @@ class HumanAgent(Agent):
         else:
             if target_agent:  # If the target is an agent
                 actions.append('talk');
+                if target_agent.agent.getObject().getId() == "dynamites_lid" and target_agent.isClosed():
+                    actions.append('open');
         inherited_actions = super(HumanAgent, self).getActionsList(target_instance, target_agent, distance)
         return inherited_actions + actions
 
@@ -127,7 +129,7 @@ class HumanAgent(Agent):
             saytext = []
             saytext.append('%s' % reactionInstance.getObject().getId())
             self.agent.say('\n'.join(saytext), 3500)
-        elif name in ("move", "talk"):
+        elif name in ("move", "talk", "open"):
             self.run(reactionInstance.getLocationRef())
         else:
             super(HumanAgent, self).doAction(name, reactionInstance, reactionAgent, callback)

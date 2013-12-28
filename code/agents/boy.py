@@ -31,6 +31,11 @@ TDS = Setting(app_name="rio_de_hola")
 _STATE_KICK = xrange(5)
 
 class Boy(HumanAgent):
+    
+    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True):
+        super(Boy, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
+        self.kickSound = self.soundmanager.createSoundEmitter('sounds/kick.ogg')
+
     def onInstanceActionFinished(self, instance, action):
         #print "Action finished: " + str(action.getId())
         if action.getId() != 'stand':
@@ -47,6 +52,7 @@ class Boy(HumanAgent):
     def kick(self, target):
         self.state = _STATE_KICK
         self.agent.actOnce('kick', target)
+        self.kickSound.play()
 
     def getActionsList(self, target_instance, target_agent, distance):
         actions = []

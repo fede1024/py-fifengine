@@ -8,8 +8,8 @@ _STATE_NONE, _STATE_IDLE, _STATE_FLY, _STATE_FOLLOW = xrange(4)
 
 class Bee(Agent):
     
-    def __init__(self, settings, model, agentName, layer, uniqInMap=True):
-        super(Bee, self).__init__(settings, model, agentName, layer, uniqInMap)
+    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True):
+        super(Bee, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
         self.state = _STATE_IDLE
         self.angry = False
         self.idlecounter = 1
@@ -65,6 +65,7 @@ class Bee(Agent):
             self.fly(actionAgent.agent.getLocationRef())
         elif name=="kick":
             location = self.agent.getLocationRef()
+            self.soundmanager.createSoundEmitter('sounds/bee.ogg', True, tuple).play()
             my_coords = location.getMapCoordinates()
             his_coords = actionAgent.agent.getLocationRef().getMapCoordinates()
             dx = my_coords.x - his_coords.x
@@ -76,8 +77,8 @@ class Bee(Agent):
                 my_coords.x += dx
                 my_coords.y += dy
                 nl.setMapCoordinates(my_coords)
-                self.fly(nl)
                 self.angry = True
+                self.fly(nl)
             else:
                 self.agent.say("You missed me :P", 3500)
         else:

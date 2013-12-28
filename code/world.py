@@ -31,6 +31,7 @@ from fife.extensions.soundmanager import SoundManager
 from agents.boy import Boy
 from agents.girl import Girl
 from agents.bee import Bee
+from agents.dynamite import Dynamite
 from agents.beekeeper import Beekeeper
 from agents.agent import create_anonymous_agents
 from fife.extensions.fife_settings import Setting
@@ -92,7 +93,6 @@ class World(EventListenerBase):
             target_agent = None
             
         actionList = self.mainAgent.getActionsList(instance, target_agent, target_distance)
-        print ">>", actionList
         
         for action in actionList:
             if self.dynamic_widgets.has_key(action): 
@@ -119,12 +119,13 @@ class World(EventListenerBase):
         The buttons are removed and later re-added if appropiate.
         """
         self.hide_instancemenu()
-        dynamicbuttons = ('move', 'talk', 'kick', 'inspect')   # Make this automatic?
+        dynamicbuttons = ('move', 'talk', 'open', 'kick', 'inspect')   # Make this automatic?
         self.instancemenu = pychan.loadXML('gui/xml/instancemenu.xml')
         self.instancemenu.mapEvents({
             'move' : lambda: self.onAction('move'),
             'talk' : lambda: self.onAction('talk'),
             'kick' : lambda: self.onAction('kick'),
+            'open' : lambda: self.onAction('open'),
             'inspect' : lambda: self.onAction('inspect'),
         })
         for btn in dynamicbuttons:
@@ -205,6 +206,11 @@ class World(EventListenerBase):
             bee = Bee(TDS, self.model, 'bee' + str(i), self.agentlayer, self.soundmanager)
             self.instance_to_agent[bee.agent.getFifeId()] = bee
             bee.start()
+
+        for i in xrange(16):
+            dynamite = Dynamite(TDS, self.model, 'dyn_' + str(i), self.agentlayer, self.soundmanager)
+            self.instance_to_agent[dynamite.agent.getFifeId()] = dynamite
+            dynamite.start()
 
         self.beekeepers = create_anonymous_agents(TDS, self.model, 'beekeeper', self.agentlayer, Beekeeper, self.soundmanager)
         for beekeeper in self.beekeepers:
@@ -389,10 +395,11 @@ class World(EventListenerBase):
 
         pt = fife.ScreenPoint(evt.getX(), evt.getY())
         instances = self.getInstancesAt(pt);
+        agent_names = set([y.agent.getObject().getId() for _, y in self.instance_to_agent.iteritems()])
         for i in instances:
             aid = i.getObject().getId() 
             me = self.mainAgent.agent.getObject().getId()
-            if (aid in ('girl', 'beekeeper', 'boy')) and aid != me: # TODO completare qui
+            if aid in agent_names and aid != me:
                 renderer.addOutlined(i, 173, 255, 47, 2)
 
     def lightIntensity(self, value):

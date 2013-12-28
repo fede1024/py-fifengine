@@ -29,6 +29,10 @@ from fife.fife import Location
 TDS = Setting(app_name="rio_de_hola")
 
 class Girl(HumanAgent):
+    
+    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True):
+        super(Girl, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
+        self.screamSound = self.soundmanager.createSoundEmitter('sounds/scream.ogg')
 
     # Execute before default doAction of Agent
     def doAction(self, name, reactionInstance, reactionAgent, callback):
@@ -50,6 +54,7 @@ class Girl(HumanAgent):
             self.run(actionAgent.agent.getLocationRef())
         elif name=="kick":
             self.agent.say("Hey!!!", 3500)
+            self.screamSound.play()
             location = self.agent.getLocationRef()
             my_coords = location.getMapCoordinates()
             his_coords = actionAgent.agent.getLocationRef().getMapCoordinates()

@@ -2,5 +2,6 @@
 	<Button name="move" text="Move here" />
 	<Button name="talk" text="Talk" />
 	<Button name="kick" text="Kick" />
+	<Button name="open" text="Open" />
 	<Button name="inspect" text="Inspect" />
 </VBox>
