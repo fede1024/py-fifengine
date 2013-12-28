@@ -34,18 +34,6 @@ class Girl(HumanAgent):
         super(Girl, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
         self.screamSound = self.soundmanager.createSoundEmitter('sounds/scream.ogg')
 
-    # Execute before default doAction of Agent
-    def doAction(self, name, reactionInstance, reactionAgent, callback):
-        self.callback = callback
-        if name=="inspect":
-            saytext = []
-            saytext.append('%s' % reactionInstance.getObject().getId())
-            self.agent.say('\n'.join(saytext), 3500)
-        elif name=="move":
-            self.run(reactionInstance.getLocationRef())
-        else:
-            super(Girl, self).doAction(name, reactionInstance, reactionAgent, callback)
-
     # Execute before default doReaction of Agent
     def doReaction(self, name, actionAgent, reactionInstance):
         if name=="talk":

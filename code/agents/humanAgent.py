@@ -132,12 +132,12 @@ class HumanAgent(Agent):
 
     # Execute before default doAction of Agent
     def doAction(self, name, reactionInstance, reactionAgent, callback):
-        self.callback = callback
         if name=="inspect":
             saytext = []
             saytext.append('%s' % reactionInstance.getObject().getId())
             self.agent.say('\n'.join(saytext), 3500)
         elif name in ("move", "talk", "open"):
             self.run(reactionInstance.getLocationRef())
+            self.callbacks.append(callback)
         else:
             super(HumanAgent, self).doAction(name, reactionInstance, reactionAgent, callback)

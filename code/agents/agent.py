@@ -37,7 +37,7 @@ class Agent(fife.InstanceActionListener):
         self.model = model
         self.agentName = agentName
         self.layer = layer
-        self.callback = None
+        self.callbacks = []
         self.soundmanager = soundmanager
         if uniqInMap:
             self.agent = layer.getInstance(agentName)
@@ -45,9 +45,11 @@ class Agent(fife.InstanceActionListener):
 
     def onInstanceActionFinished(self, instance, action):
 #         print "Agent action finished", instance.getObject().getId()
-        if self.callback:
-            self.callback()
-            self.callback = None
+        if self.callbacks:
+            callback = self.callbacks[0]                          # Call the callback
+            if callback:
+                callback()
+            self.callbacks = self.callbacks[1:]   # Remove it from the list
 
     def onInstanceActionCancelled(self, instance, action):
         raise ProgrammingError('No OnActionFinished defined for Agent')
@@ -62,6 +64,7 @@ class Agent(fife.InstanceActionListener):
         return []
     
     def doAction(self, name, reactionInstance, reactionAgent, callback):
+        self.callbacks.append(callback)
         print "No action '%s' defined for %s to %s (agent %s)."%(name, self.agentName, reactionInstance.getObject().getId(), \
                                                                 None if not reactionAgent else reactionAgent.agentName)
 

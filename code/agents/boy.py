@@ -77,9 +77,9 @@ class Boy(HumanAgent):
 
     # Execute before default doAction of Agent
     def doAction(self, name, reactionInstance, reactionAgent, callback):
-        self.callback = callback
         if name=="kick":
             self.kick(reactionInstance.getLocationRef())
+            self.callbacks.append(callback)
         else:
             super(Boy, self).doAction(name, reactionInstance, reactionAgent, callback)
 
