@@ -34,6 +34,7 @@ class HumanAgent(Agent):
         super(HumanAgent, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
         self.state = _STATE_NONE
         self.idlecounter = 1
+        self.bottle = False
         self.footSound = self.soundmanager.createSoundEmitter('sounds/footstep.ogg')
         self.footSound.looping = True
 
@@ -50,14 +51,20 @@ class HumanAgent(Agent):
 
     def idle(self):
         self.state = _STATE_IDLE
-        self.agent.actOnce('stand')
+        if self.bottle:
+            self.agent.actOnce('stand_bottle')
+        else:
+            self.agent.actOnce('stand')
         self.footSound.stop()
 
     def run(self, location):
         if self.state != _STATE_RUN:
             self.footSound.play()
         self.state = _STATE_RUN
-        self.agent.move('run', location, 4 * self.settings.get("rio", "TestAgentSpeed"))
+        if self.bottle:
+            self.agent.move('run_bottle', location, 4 * self.settings.get("rio", "TestAgentSpeed"))
+        else:
+            self.agent.move('run', location, 4 * self.settings.get("rio", "TestAgentSpeed"))
 
     def talk(self, target):
         self.state = _STATE_TALK
@@ -116,8 +123,9 @@ class HumanAgent(Agent):
             actions.append('move')
         else:
             if target_agent:  # If the target is an agent
-                actions.append('talk');
-                if target_agent.agent.getObject().getId() == "dynamites_lid" and target_agent.isClosed():
+                if target_agent.agent.getObject().getId() != "dynamites_lid":
+                    actions.append('talk');
+                elif target_agent.isClosed():
                     actions.append('open');
         inherited_actions = super(HumanAgent, self).getActionsList(target_instance, target_agent, distance)
         return inherited_actions + actions

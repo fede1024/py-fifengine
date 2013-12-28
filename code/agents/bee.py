@@ -53,6 +53,7 @@ class Bee(Agent):
 
     def fly(self, location):
         self.state = _STATE_FLY
+        self.idlecounter = 1
         if(self.angry):
             self.agent.move('angry_fly', location, 3 * self.settings.get("rio", "TestAgentSpeed"))
         else:
@@ -65,19 +66,19 @@ class Bee(Agent):
             self.fly(actionAgent.agent.getLocationRef())
         elif name=="kick":
             location = self.agent.getLocationRef()
-            self.soundmanager.createSoundEmitter('sounds/bee.ogg', True, tuple).play()
             my_coords = location.getMapCoordinates()
             his_coords = actionAgent.agent.getLocationRef().getMapCoordinates()
             dx = my_coords.x - his_coords.x
             dy = my_coords.y - his_coords.y
             dist = math.sqrt(dx*dx + dy*dy)
-            if (dist < 1.5):
+            if (dist < 1):
                 self.agent.say("BZZ!!!", 3500)
+                self.soundmanager.createSoundEmitter('sounds/bee.ogg', True, tuple).play()
                 nl = Location(location)
-                my_coords.x += dx
-                my_coords.y += dy
+                my_coords.x += dx*2
+                my_coords.y += dy*2
                 nl.setMapCoordinates(my_coords)
-                self.angry = True
+                #self.angry = True
                 self.fly(nl)
             else:
                 self.agent.say("You missed me :P", 3500)

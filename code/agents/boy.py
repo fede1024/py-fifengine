@@ -28,13 +28,14 @@ import random
 TDS = Setting(app_name="rio_de_hola")
 
 # Define constants
-_STATE_KICK = xrange(5)
+_STATE_KICK, _STATE_RUN = xrange(2)
 
 class Boy(HumanAgent):
     
     def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True):
         super(Boy, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
         self.kickSound = self.soundmanager.createSoundEmitter('sounds/kick.ogg')
+        self.bottle = True
 
     def onInstanceActionFinished(self, instance, action):
         #print "Action finished: " + str(action.getId())
@@ -51,8 +52,20 @@ class Boy(HumanAgent):
 
     def kick(self, target):
         self.state = _STATE_KICK
-        self.agent.actOnce('kick', target)
+        if self.bottle == True:
+            self.agent.actOnce('kick_bottle', target)
+        else:
+            self.agent.actOnce('kick', target)
         self.kickSound.play()
+
+    def run(self, location, bottle=True):
+        if self.state != _STATE_RUN:
+            self.footSound.play()
+        self.state = _STATE_RUN
+        if bottle:
+            self.agent.move('run_bottle', location, 4 * self.settings.get("rio", "TestAgentSpeed"))
+        else:
+            self.agent.move('run', location, 4 * self.settings.get("rio", "TestAgentSpeed"))
 
     def getActionsList(self, target_instance, target_agent, distance):
         actions = []

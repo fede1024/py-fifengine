@@ -24,6 +24,18 @@
 			<direction delay="130" dir="315" frames="9"/>
 		</animation>
 	</action>
+	<action id="kick_bottle">
+		<animation atlas="kick_bottle.png" height="96" width="96">
+			<direction delay="130" dir="0" frames="9"/>
+			<direction delay="130" dir="45" frames="9"/>
+			<direction delay="130" dir="90" frames="9"/>
+			<direction delay="130" dir="135" frames="9"/>
+			<direction delay="130" dir="180" frames="9"/>
+			<direction delay="130" dir="225" frames="9"/>
+			<direction delay="130" dir="270" frames="9"/>
+			<direction delay="130" dir="315" frames="9"/>
+		</animation>
+	</action>
 	<action id="run">
 		<animation atlas="run.png" height="96" width="96">
 			<direction delay="130" dir="0" frames="8"/>
@@ -36,8 +48,32 @@
 			<direction delay="130" dir="315" frames="8"/>
 		</animation>
 	</action>
+	<action id="run_bottle">
+		<animation atlas="run_bottle.png" height="96" width="96">
+			<direction delay="130" dir="0" frames="8"/>
+			<direction delay="130" dir="45" frames="8"/>
+			<direction delay="130" dir="90" frames="8"/>
+			<direction delay="130" dir="135" frames="8"/>
+			<direction delay="130" dir="180" frames="8"/>
+			<direction delay="130" dir="225" frames="8"/>
+			<direction delay="130" dir="270" frames="8"/>
+			<direction delay="130" dir="315" frames="8"/>
+		</animation>
+	</action>
 	<action id="stand">
 		<animation atlas="stand.png" height="96" width="96">
+			<direction delay="2000" dir="0" frames="1"/>
+			<direction delay="2000" dir="45" frames="1"/>
+			<direction delay="2000" dir="90" frames="1"/>
+			<direction delay="2000" dir="135" frames="1"/>
+			<direction delay="2000" dir="180" frames="1"/>
+			<direction delay="2000" dir="225" frames="1"/>
+			<direction delay="2000" dir="270" frames="1"/>
+			<direction delay="2000" dir="315" frames="1"/>
+		</animation>
+	</action>
+	<action id="stand_bottle">
+		<animation atlas="stand_bottle.png" height="96" width="96">
 			<direction delay="2000" dir="0" frames="1"/>
 			<direction delay="2000" dir="45" frames="1"/>
 			<direction delay="2000" dir="90" frames="1"/>
