@@ -3,5 +3,7 @@
 	<Button name="talk" text="Talk" />
 	<Button name="kick" text="Kick" />
 	<Button name="open" text="Open" />
+	<Button name="pick" text="Pick up" />
+	<Button name="lay" text="Lay" />
 	<Button name="inspect" text="Inspect" />
 </VBox>

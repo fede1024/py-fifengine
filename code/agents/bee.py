@@ -15,7 +15,8 @@ class Bee(Agent):
         self.idlecounter = 1
         location = self.agent.getLocationRef()
         self.initial_coords = location.getMapCoordinates()
-        self.boy = self.layer.getInstance('PC')
+        self.followed = None
+        #self.boy = self.layer.getInstance('PC')
 
     def onInstanceActionFinished(self, instance, action):
         if action.getId() == 'angry_fly' and self.state == _STATE_FOLLOW:
@@ -23,7 +24,7 @@ class Bee(Agent):
 
         if self.angry == True:
             self.idlecounter = 1
-            self.followBoy()
+            self.follow(self.followed)
         else:
             if self.idlecounter % 3 == 0:
                 self.randomMove()
@@ -101,6 +102,7 @@ class Bee(Agent):
         nl.setMapCoordinates(coords)
         self.fly(nl)
         
-    def followBoy(self):
-        self.state = _STATE_FOLLOW
-        self.agent.follow('angry_fly', self.boy, 3 * self.settings.get("rio", "TestAgentSpeed"))
+    def follow(self, instance):
+        if instance:
+            self.state = _STATE_FOLLOW
+            self.agent.follow('angry_fly', instance, 3 * self.settings.get("rio", "TestAgentSpeed"))

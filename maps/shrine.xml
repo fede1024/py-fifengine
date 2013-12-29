@@ -5910,7 +5910,8 @@
 			<i x="7.0" o="bushes:05" z="0.0" y="-35.0" r="0"></i>
 			<i x="7.0" o="bushes:05" z="0.0" y="-36.0" r="0"></i>
 			<i x="7.0" o="bushes:05" z="0.0" y="-37.0" r="0"></i>
-			<i x="3" o="dynamites_lid" id="dyn_0" z="0.0" y="8" r="90"></i>
+			<i x="3" o="flask_map" id="flask0" z="0.0" y="8" r="90"></i>
+			<i x="8" o="dynamites_lid" id="dyn_0" z="0.0" y="8" r="90"></i>
 			<i x="20.0" o="dynamites_lid" id="dyn_1" z="0.0" y="-30.0" r="90"></i>
 			<i x="21.0" o="dynamites_lid" id="dyn_2" z="0.0" y="-29.0" r="90"></i>
 			<i x="21.0" o="dynamites_lid" id="dyn_3" z="0.0" y="-30.0" r="90"></i>

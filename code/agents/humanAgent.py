@@ -118,7 +118,9 @@ class HumanAgent(Agent):
             self.run(nl)
             
     def getActionsList(self, target_instance, target_agent, distance):
-        actions = ['inspect']
+        actions = []
+        if target_instance:
+            actions.append('inspect')
         if distance > 1.5:
             actions.append('move')
         else:
@@ -131,7 +133,7 @@ class HumanAgent(Agent):
         return inherited_actions + actions
 
     # Execute before default doAction of Agent
-    def doAction(self, name, reactionInstance, reactionAgent, callback):
+    def doAction(self, name, reactionInstance, reactionAgent, callback, location=None):
         if name=="inspect":
             saytext = []
             saytext.append('%s' % reactionInstance.getObject().getId())

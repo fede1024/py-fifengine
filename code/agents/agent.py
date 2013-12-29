@@ -63,9 +63,10 @@ class Agent(fife.InstanceActionListener):
     def getActionsList(self, target_instance, target_agent, distance):
         return []
     
-    def doAction(self, name, reactionInstance, reactionAgent, callback):
+    def doAction(self, name, reactionInstance, reactionAgent, callback, location=None):
         self.callbacks.append(callback)
-        print "No action '%s' defined for %s to %s (agent %s)."%(name, self.agentName, reactionInstance.getObject().getId(), \
+        print "No action '%s' defined for %s to %s (agent %s)."%(name, self.agentName, \
+                                                                None if not reactionInstance else reactionInstance.getObject().getId(), \
                                                                 None if not reactionAgent else reactionAgent.agentName)
 
     # the "reactionAgent" is yourself of course

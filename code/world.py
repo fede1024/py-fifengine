@@ -70,24 +70,28 @@ class World(EventListenerBase):
         self.soundmanager = SoundManager(self.engine)
         self.music = None
 
-    def show_instancemenu(self, clickpoint, instance):
+    def show_instancemenu(self, clickpoint, location, instance):
         """
         Build and show a popupmenu for an instance that the player
         clicked on. The available actions are dynamically added to
         the menu (and mapped to the onXYZ functions).
         """
-        if instance.getFifeId() == self.mainAgent.agent.getFifeId(): # click on yourself
+        if instance and instance.getFifeId() == self.mainAgent.agent.getFifeId(): # click on yourself
             return
 
         # Create the popup.
         self.build_instancemenu()
         self.instancemenu.clickpoint = clickpoint
+        self.instancemenu.location = location
         self.instancemenu.instance = instance
 
         # Add the buttons according to circumstances.
-        target_distance = self.mainAgent.agent.getLocationRef().getLayerDistanceTo(instance.getLocationRef())
+        if instance:
+            target_distance = self.mainAgent.agent.getLocationRef().getLayerDistanceTo(instance.getLocationRef())
+        else:
+            target_distance = 0
         
-        if self.instance_to_agent.has_key(instance.getFifeId()):
+        if instance and self.instance_to_agent.has_key(instance.getFifeId()):
             target_agent = self.instance_to_agent[instance.getFifeId()]
         else:
             target_agent = None
@@ -119,13 +123,15 @@ class World(EventListenerBase):
         The buttons are removed and later re-added if appropiate.
         """
         self.hide_instancemenu()
-        dynamicbuttons = ('move', 'talk', 'open', 'kick', 'inspect')   # Make this automatic?
+        dynamicbuttons = ('move', 'talk', 'open', 'kick', 'inspect', 'pick', 'lay') 
         self.instancemenu = pychan.loadXML('gui/xml/instancemenu.xml')
         self.instancemenu.mapEvents({
             'move' : lambda: self.onAction('move'),
             'talk' : lambda: self.onAction('talk'),
             'kick' : lambda: self.onAction('kick'),
             'open' : lambda: self.onAction('open'),
+            'pick' : lambda: self.onAction('pick'),
+            'lay' : lambda: self.onAction('lay'),
             'inspect' : lambda: self.onAction('inspect'),
         })
         for btn in dynamicbuttons:
@@ -384,10 +390,13 @@ class World(EventListenerBase):
             self.mainAgent.run(self.getLocationAt(clickpoint) )
 
         if (evt.getButton() == fife.MouseEvent.RIGHT):
+            location = self.getLocationAt(clickpoint)
             instances = self.getInstancesAt(clickpoint)
             #print "selected instances on agent layer: ", [i.getObject().getId() for i in instances]
             if instances:
-                self.show_instancemenu(clickpoint, instances[0])
+                self.show_instancemenu(clickpoint, location, instances[0])
+            else:
+                self.show_instancemenu(clickpoint, location, None)
 
     def mouseMoved(self, evt):
         renderer = fife.InstanceRenderer.getInstance(self.cameras['main'])
@@ -396,6 +405,7 @@ class World(EventListenerBase):
         pt = fife.ScreenPoint(evt.getX(), evt.getY())
         instances = self.getInstancesAt(pt);
         agent_names = set([y.agent.getObject().getId() for _, y in self.instance_to_agent.iteritems()])
+        agent_names.add('flask_map')
         for i in instances:
             aid = i.getObject().getId() 
             me = self.mainAgent.agent.getObject().getId()
@@ -441,7 +451,7 @@ class World(EventListenerBase):
         """ self.mainAgent is performing action 'name' relate to some instance menu"""
         self.hide_instancemenu()
         destInstance = self.instancemenu.instance
-        if self.instance_to_agent.has_key(destInstance.getFifeId()):        # The reactor is an agent
+        if destInstance and self.instance_to_agent.has_key(destInstance.getFifeId()):        # The reactor is an agent
             destAgent = self.instance_to_agent[destInstance.getFifeId()]
             def callback():
                 print "Performing reaction to", name
@@ -449,15 +459,32 @@ class World(EventListenerBase):
             print "Performing action", name
             self.mainAgent.doAction(name, destInstance, destAgent, callback)
         else:                                                                                                               # The reactor is not an agent
-            self.mainAgent.doAction(name, destInstance, None, None)
+            self.mainAgent.doAction(name, destInstance, None, None, self.instancemenu.location)
 
     def pump(self):
         """
         Called every frame.
         """
 
+        if self.pump_ctr % 10 == 0:
+            flask = self.agentlayer.getInstance('flask0')
+            bees = [y for _, y in self.instance_to_agent.iteritems() if y.agent.getObject().getId() == 'bee']
+            boy_distance = 1000
+            for bee in bees:
+                if self.boy.bottle:
+                    boy_distance = self.boy.agent.getLocationRef().getLayerDistanceTo(bee.agent.getLocationRef())
+                flask_distance = flask.getLocationRef().getLayerDistanceTo(bee.agent.getLocationRef())
+                if flask_distance < 5 and bee.followed != flask:
+                    bee.angry = True
+                    bee.followed = flask
+                    bee.follow(flask)
+                elif boy_distance < 5 and bee.followed != self.boy.agent:
+                    bee.angry = True
+                    bee.followed = self.boy.agent
+                    bee.follow(self.boy.agent)
+                
         self.changeRotation()
-        self.pump_ctr += 1
+        self.pump_ctr = (self.pump_ctr+1) % 1000
 
     def switchMainAgentTo(self, name):
         if name == 'boy':
