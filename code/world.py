@@ -87,7 +87,7 @@ class World(EventListenerBase):
 
         # Add the buttons according to circumstances.
         if instance:
-            target_distance = self.mainAgent.agent.getLocationRef().getLayerDistanceTo(instance.getLocationRef())
+            target_distance = self.mainAgent.agent.getLocation().getLayerDistanceTo(instance.getLocation())
         else:
             target_distance = 0
         
@@ -208,13 +208,15 @@ class World(EventListenerBase):
         self.instance_to_agent[self.girl.agent.getFifeId()] = self.girl
         self.girl.start()
 
+        self.bees = []
         for i in xrange(10):
             bee = Bee(TDS, self.model, 'bee' + str(i), self.agentlayer, self.soundmanager)
             self.instance_to_agent[bee.agent.getFifeId()] = bee
             bee.start()
+            self.bees.append(bee)
 
-        for i in xrange(16):
-            dynamite = Dynamite(TDS, self.model, 'dyn_' + str(i), self.agentlayer, self.soundmanager)
+        for i in xrange(11):
+            dynamite = Dynamite(TDS, self.model, 'dyn_' + str(i), self.agentlayer, self.soundmanager, bees=self.bees)
             self.instance_to_agent[dynamite.agent.getFifeId()] = dynamite
             dynamite.start()
 
@@ -472,14 +474,13 @@ class World(EventListenerBase):
             boy_distance = 1000
             for bee in bees:
                 if self.boy.bottle:
-                    boy_distance = self.boy.agent.getLocationRef().getLayerDistanceTo(bee.agent.getLocationRef())
-                flask_distance = flask.getLocationRef().getLayerDistanceTo(bee.agent.getLocationRef())
-                if flask_distance < 5 and (bee.followed != flask or bee.isIdle()):
-                    bee.angry = True
+                    boy_distance = self.boy.agent.getLocation().getLayerDistanceTo(bee.agent.getLocation())
+                flask_distance = flask.getLocation().getLayerDistanceTo(bee.agent.getLocation())
+                bee.followed = None
+                if flask_distance < 5 and (bee.followed != flask or bee.isIdle()) and not bee.isDead():
                     bee.followed = flask
                     bee.follow(flask)
-                elif boy_distance < 5 and (bee.followed != self.boy.agent or bee.isIdle()):
-                    bee.angry = True
+                elif boy_distance < 5 and (bee.followed != self.boy.agent or bee.isIdle()) and not bee.isDead():
                     bee.followed = self.boy.agent
                     bee.follow(self.boy.agent)
                 

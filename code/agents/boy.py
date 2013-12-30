@@ -24,6 +24,7 @@
 from humanAgent import HumanAgent
 from fife.extensions.fife_settings import Setting
 from fife.fife import Location
+from code.utils import makeDisappear, moveObject
 import random
 
 TDS = Setting(app_name="rio_de_hola")
@@ -38,6 +39,7 @@ class Boy(HumanAgent):
         self.kickSound = self.soundmanager.createSoundEmitter('sounds/kick.ogg')
         self.bottle = False
         self.lay = False
+        self.speed = 6
 
     def onInstanceActionFinished(self, instance, action):
         #print "Action finished: " + str(action.getId())
@@ -69,15 +71,6 @@ class Boy(HumanAgent):
             self.agent.actOnce('kick', target)
         self.kickSound.play()
 
-    def run(self, location):
-        if self.state != _STATE_RUN:
-            self.footSound.play()
-        self.state = _STATE_RUN
-        if self.bottle:
-            self.agent.move('run_bottle', location, 4 * self.settings.get("rio", "TestAgentSpeed"))
-        else:
-            self.agent.move('run', location, 4 * self.settings.get("rio", "TestAgentSpeed"))
-
     def getActionsList(self, target_instance, target_agent, distance):
         actions = []
         if self.bottle and not target_instance:
@@ -93,11 +86,11 @@ class Boy(HumanAgent):
     # Execute before default doAction of Agent
     def doAction(self, name, reactionInstance, reactionAgent, callback, location=None):
         if name == "kick":
-            self.kick(reactionInstance.getLocationRef())
+            self.kick(reactionInstance.getLocation())
             self.callbacks.append(callback)
         elif name == "pick":
             self.bottle = reactionInstance
-            self.run(self.bottle.getLocationRef())
+            self.run(self.bottle.getLocation())
             makeDisappear(self.bottle)
             self.idle()
         elif name == "lay":
@@ -111,17 +104,6 @@ class Boy(HumanAgent):
         if name=="talk":
             texts = TDS.get("rio", "boyTexts")
             reactionInstance.say(random.choice(texts), 5000)
-            self.run(actionAgent.agent.getLocationRef())
+            self.run(actionAgent.agent.getLocation())
         else:
             super(Boy, self).doReaction(name, actionAgent, reactionInstance)
-
-def moveObject(instance, x, y):
-        location = instance.getLocation()
-        coords = location.getMapCoordinates()
-        coords.x = x
-        coords.y = y
-        location.setMapCoordinates(coords)
-        instance.setLocation(location)
-
-def makeDisappear(instance):
-    moveObject(instance, 100, 100)

@@ -44,7 +44,6 @@ class Agent(fife.InstanceActionListener):
             self.agent.addActionListener(self)
 
     def onInstanceActionFinished(self, instance, action):
-#         print "Agent action finished", instance.getObject().getId()
         if self.callbacks:
             callback = self.callbacks[0]                          # Call the callback
             if callback:

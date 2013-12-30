@@ -37,6 +37,7 @@ class HumanAgent(Agent):
         self.bottle = False
         self.footSound = self.soundmanager.createSoundEmitter('sounds/footstep.ogg')
         self.footSound.looping = True
+        self.speed = 5
 
     def onInstanceActionFinished(self, instance, action):
         self.idle()
@@ -62,9 +63,9 @@ class HumanAgent(Agent):
             self.footSound.play()
         self.state = _STATE_RUN
         if self.bottle:
-            self.agent.move('run_bottle', location, 4 * self.settings.get("rio", "TestAgentSpeed"))
+            self.agent.move('run_bottle', location, self.speed * self.settings.get("rio", "TestAgentSpeed"))
         else:
-            self.agent.move('run', location, 4 * self.settings.get("rio", "TestAgentSpeed"))
+            self.agent.move('run', location, self.speed * self.settings.get("rio", "TestAgentSpeed"))
 
     def talk(self, target):
         self.state = _STATE_TALK
@@ -137,6 +138,9 @@ class HumanAgent(Agent):
         if name=="inspect":
             saytext = []
             saytext.append('%s' % reactionInstance.getObject().getId())
+            location = reactionInstance.getLocationRef()
+            coords = location.getMapCoordinates()
+            saytext.append('(%d, %d)' %(coords.x, coords.y)) 
             self.agent.say('\n'.join(saytext), 3500)
         elif name in ("move", "talk", "open"):
             print reactionInstance, reactionInstance.getLocationRef()
