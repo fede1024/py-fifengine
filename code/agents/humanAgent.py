@@ -139,6 +139,7 @@ class HumanAgent(Agent):
             saytext.append('%s' % reactionInstance.getObject().getId())
             self.agent.say('\n'.join(saytext), 3500)
         elif name in ("move", "talk", "open"):
+            print reactionInstance, reactionInstance.getLocationRef()
             self.run(reactionInstance.getLocationRef())
             self.callbacks.append(callback)
         else:

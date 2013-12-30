@@ -474,11 +474,11 @@ class World(EventListenerBase):
                 if self.boy.bottle:
                     boy_distance = self.boy.agent.getLocationRef().getLayerDistanceTo(bee.agent.getLocationRef())
                 flask_distance = flask.getLocationRef().getLayerDistanceTo(bee.agent.getLocationRef())
-                if flask_distance < 5 and bee.followed != flask:
+                if flask_distance < 5 and (bee.followed != flask or bee.isIdle()):
                     bee.angry = True
                     bee.followed = flask
                     bee.follow(flask)
-                elif boy_distance < 5 and bee.followed != self.boy.agent:
+                elif boy_distance < 5 and (bee.followed != self.boy.agent or bee.isIdle()):
                     bee.angry = True
                     bee.followed = self.boy.agent
                     bee.follow(self.boy.agent)

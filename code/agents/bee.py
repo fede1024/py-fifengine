@@ -2,6 +2,7 @@ from agent import Agent
 from fife import fife
 from fife.fife import Location
 import random, math
+from code.agents.humanAgent import _STATE_IDLE
 
 # Define constants
 _STATE_NONE, _STATE_IDLE, _STATE_FLY, _STATE_FOLLOW = xrange(4)
@@ -19,8 +20,8 @@ class Bee(Agent):
         #self.boy = self.layer.getInstance('PC')
 
     def onInstanceActionFinished(self, instance, action):
-        if action.getId() == 'angry_fly' and self.state == _STATE_FOLLOW:
-            self.agent.say("You are dead!", 3500)
+        #if action.getId() == 'angry_fly' and self.state == _STATE_FOLLOW:
+        #    self.agent.say("You are dead!", 3500)
 
         if self.angry == True:
             self.idlecounter = 1
@@ -62,6 +63,7 @@ class Bee(Agent):
 
     # Execute before default doReaction of Agent
     def doReaction(self, name, actionAgent, reactionInstance):
+        print name, actionAgent, reactionInstance
         if name=="talk":
             reactionInstance.say("BZZZZZZZ", 5000)
             self.fly(actionAgent.agent.getLocationRef())
@@ -104,5 +106,14 @@ class Bee(Agent):
         
     def follow(self, instance):
         if instance:
-            self.state = _STATE_FOLLOW
-            self.agent.follow('angry_fly', instance, 3 * self.settings.get("rio", "TestAgentSpeed"))
+            target_distance = self.agent.getLocationRef().getLayerDistanceTo(instance.getLocationRef())
+            if target_distance > 1.5:
+                self.state = _STATE_FOLLOW
+                self.fly(instance.getLocationRef())
+                #self.agent.follow('angry_fly', instance, 3 * self.settings.get("rio", "TestAgentSpeed"))
+                print "LOL", instance
+            else:
+                self.idle()
+
+    def isIdle(self):
+        return self.state == _STATE_IDLE

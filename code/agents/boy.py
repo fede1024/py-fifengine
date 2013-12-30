@@ -63,7 +63,7 @@ class Boy(HumanAgent):
 
     def kick(self, target):
         self.state = _STATE_KICK
-        if self.bottle == True:
+        if self.bottle:
             self.agent.actOnce('kick_bottle', target)
         else:
             self.agent.actOnce('kick', target)
