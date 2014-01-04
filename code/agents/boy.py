@@ -46,9 +46,9 @@ class Boy(HumanAgent):
         if self.lay:
             location = self.agent.getLocation()
             coords = location.getMapCoordinates()
-            self.moveStep('u')
             moveObject(self.bottle, coords.x, coords.y)
             self.bottle = None
+            self.moveStep('u')
             self.lay = False
             return
         

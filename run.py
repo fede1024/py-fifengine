@@ -52,10 +52,12 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
 #        super(ApplicationListener, self).__init__(engine,regKeys=True,regCmd=True, regMouse=True, regConsole=False, regWidget=True)
         self.engine = engine
         self.world = world
+        self.world.run = self
         engine.getEventManager().setNonConsumableKeys([fife.Key.ESCAPE,])
 
         self.quit = False
         self.aboutWindow = None
+        self.youLooseWindow = None
 
         self.rootpanel = pychan.loadXML('gui/xml/rootpanel.xml')
         self.rootpanel.mapEvents({ 
@@ -103,6 +105,16 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
             self.quit = True
             command.consume()
 
+    def youLoose(self):
+        if not self.youLooseWindow:
+            self.youLooseWindow = pychan.loadXML('gui/xml/youLoose.xml')
+            def restartWorld():
+                self.world.restart()
+                self.youLooseWindow.hide()
+            self.youLooseWindow.mapEvents({ 'closeButton' : restartWorld })
+            self.youLooseWindow.distributeData({ 'looseText' : "The girl got killed. You loose. Try again!" })
+        self.youLooseWindow.show()
+        
     def onQuitButtonPress(self):
         cmd = fife.Command()
         cmd.setSource(None)

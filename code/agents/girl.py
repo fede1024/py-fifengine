@@ -33,6 +33,7 @@ class Girl(HumanAgent):
     def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True):
         super(Girl, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
         self.screamSound = self.soundmanager.createSoundEmitter('sounds/scream.ogg')
+        self.dead = False
 
     # Execute before default doReaction of Agent
     def doReaction(self, name, actionAgent, reactionInstance):
@@ -55,3 +56,10 @@ class Girl(HumanAgent):
             self.run(nl)
         else:
             super(Girl, self).doReaction(name, actionAgent, reactionInstance)
+            
+    def die(self):
+        if not self.dead:
+            self.footSound.stop()
+            self.screamSound.play()
+            self.dead = True
+            self.idle()

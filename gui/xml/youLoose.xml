@@ -1,0 +1,4 @@
+<Window title="News">
+	<TextBox name="looseText"/>
+	<Button name="closeButton" text="Try again"/>
+</Window>

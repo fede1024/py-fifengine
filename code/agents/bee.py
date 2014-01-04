@@ -7,11 +7,11 @@ import random, math
 TDS = Setting(app_name="rio_de_hola")
 
 # Define constants
-_STATE_NONE, _STATE_IDLE, _STATE_FLY, _STATE_FOLLOW, _STATE_DEAD = xrange(5)
+_STATE_NONE, _STATE_IDLE, _STATE_FLY, _STATE_FOLLOW, _STATE_DEAD, _STATE_ATTACK = xrange(6)
 
 class Bee(Agent):
     
-    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True):
+    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True, girl=None, looseCallback=None):
         super(Bee, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
         self.state = _STATE_IDLE
         self.idlecounter = 1
@@ -19,16 +19,17 @@ class Bee(Agent):
         self.initial_coords = location.getMapCoordinates()
         self.followed = None
         #self.boy = self.layer.getInstance('PC')
+        self.girl = girl
+        self.looseCallback = looseCallback
         self.beeHoneyTexts = TDS.get("rio", "beeHoneyTexts")
+        self.beeGirlTexts = TDS.get("rio", "beeGirlTexts")
 
     def onInstanceActionFinished(self, instance, action):
-        #if action.getId() == 'angry_fly' and self.state == _STATE_FOLLOW:
-        #    self.agent.say("You are dead!", 3500)
-
         if self.state == _STATE_DEAD:
             self.agent.actOnce('dead')
             return
-        elif self.followed:
+        
+        if self.followed:
             self.idlecounter = 1
             #self.idle()
             self.follow(self.followed)
@@ -60,6 +61,11 @@ class Bee(Agent):
         self.state = _STATE_FLY
         self.idlecounter = 1
         self.agent.move('fly', location, 6 * self.settings.get("rio", "TestAgentSpeed"))
+
+    def attack(self):
+        self.state = _STATE_ATTACK
+        self.idlecounter = 1
+        self.agent.actOnce('fast_attack')
 
     def fall(self):
         self.state = _STATE_DEAD
@@ -114,15 +120,26 @@ class Bee(Agent):
             target_distance = self.agent.getLocation().getLayerDistanceTo(instance.getLocation())
             if target_distance > 1.5:
                 if self.state != _STATE_FOLLOW:
-                    self.agent.say(random.choice(self.beeHoneyTexts), 1000)
+                    if instance == self.girl.agent:
+                        self.agent.say(random.choice(self.beeGirlTexts), 1000)
+                    else:
+                        self.agent.say(random.choice(self.beeHoneyTexts), 1000)
                 self.fly(instance.getLocation())
                 self.state = _STATE_FOLLOW
                 #self.agent.follow('angry_fly', instance, 3 * self.settings.get("rio", "TestAgentSpeed"))
             else:
-                self.idle()
+                if instance == self.girl.agent:
+                    self.attack()
+                    self.girl.die()
+                    self.looseCallback()
+                else:
+                    self.idle()
 
     def isIdle(self):
         return self.state == _STATE_IDLE
 
     def isDead(self):
         return self.state == _STATE_DEAD
+
+    def isAttacking(self):
+        return self.state == _STATE_ATTACK
