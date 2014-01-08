@@ -62,7 +62,7 @@ class World(EventListenerBase):
         self.instancemenu = None
         self.instance_to_agent = {}
         self.dynamic_widgets = {}
-        self.run = None # GUI
+        self.gui = None # Overwritten during GUI initialization
 
         self.light_intensity = 1
         self.light_sources = 0
@@ -183,7 +183,7 @@ class World(EventListenerBase):
         self.music.looping = True
         self.music.gain = 128
 
-        if int(TDS.get("FIFE", "PlaySounds")):
+        if int(Setting(app_name="rio_de_hola").get("FIFE", "PlaySounds")):
             self.music.play()
             self.soundActive = True
         else:
@@ -191,8 +191,14 @@ class World(EventListenerBase):
             
     def loose(self):
         self.cameras['main'].setOverlayColor(0,0,0,180)
-        self.run.youLoose()
+        self.gui.youLoose()
     
+    def showItems(self, items):
+        self.gui.showItems(items)
+
+    def hideItems(self, items):
+        self.gui.hideItems(items)
+
     def restart(self):
         self.model.deleteMaps()
         self.load(self.filename)
@@ -208,12 +214,12 @@ class World(EventListenerBase):
         to the python agents for later reference.
         """
         self.agentlayer = self.map.getLayer('TechdemoMapGroundObjectLayer')
-        self.boy = Boy(TDS, self.model, 'PC', self.agentlayer, self.soundmanager)
+        self.boy = Boy(TDS, self.model, 'PC', self.agentlayer, self.soundmanager, world = self)
         self.instance_to_agent[self.boy.agent.getFifeId()] = self.boy
         self.mainAgent = self.boy
         self.boy.start()
 
-        self.girl = Girl(TDS, self.model, 'NPC:girl', self.agentlayer, self.soundmanager)
+        self.girl = Girl(TDS, self.model, 'NPC:girl', self.agentlayer, self.soundmanager, world = self)
         self.instance_to_agent[self.girl.agent.getFifeId()] = self.girl
         self.girl.start()
 
@@ -301,7 +307,7 @@ class World(EventListenerBase):
         
         #disable FoW by default.  Users can turn it on with the 'f' key.
         renderer.setEnabledFogOfWar(False)
-        
+
         # Set up the second camera
         # NOTE: We need to explicitly call setLocation, there's a bit of a messup in the Camera code.
         self.cameras['small'].setLocation(self.boy.agent.getLocation())
@@ -417,6 +423,7 @@ class World(EventListenerBase):
         instances = self.getInstancesAt(pt);
         agent_names = set([y.agent.getObject().getId() for _, y in self.instance_to_agent.iteritems()])
         agent_names.add('flask_map')
+        agent_names.add('coins_map')
         for i in instances:
             aid = i.getObject().getId() 
             me = self.mainAgent.agent.getObject().getId()

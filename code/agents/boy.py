@@ -23,7 +23,6 @@
 
 from humanAgent import HumanAgent
 from fife.extensions.fife_settings import Setting
-from fife.fife import Location
 from code.utils import makeDisappear, moveObject
 import random
 
@@ -34,11 +33,12 @@ _STATE_KICK, _STATE_RUN = xrange(2)
 
 class Boy(HumanAgent):
     
-    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True):
+    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True, world = None):
         super(Boy, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
         self.kickSound = self.soundmanager.createSoundEmitter('sounds/kick.ogg')
         self.bottle = False
         self.lay = False
+        self.world = world
         self.speed = 6
 
     def onInstanceActionFinished(self, instance, action):
@@ -48,6 +48,7 @@ class Boy(HumanAgent):
             coords = location.getMapCoordinates()
             moveObject(self.bottle, coords.x, coords.y)
             self.bottle = None
+            self.world.hideItems([0])
             self.moveStep('u')
             self.lay = False
             return
@@ -90,6 +91,7 @@ class Boy(HumanAgent):
             self.callbacks.append(callback)
         elif name == "pick":
             self.bottle = reactionInstance
+            self.world.showItems([0])
             self.run(self.bottle.getLocation())
             makeDisappear(self.bottle)
             self.idle()

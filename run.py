@@ -52,7 +52,7 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
 #        super(ApplicationListener, self).__init__(engine,regKeys=True,regCmd=True, regMouse=True, regConsole=False, regWidget=True)
         self.engine = engine
         self.world = world
-        self.world.run = self
+        self.world.gui = self
         engine.getEventManager().setNonConsumableKeys([fife.Key.ESCAPE,])
 
         self.quit = False
@@ -84,6 +84,16 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
         self.character_gui.show()
         self.girlButton.hide()
 
+        self.itemsContainer = pychan.loadXML('gui/xml/items.xml')
+        self.itemsImages = []
+        self.itemsImages.append(self.itemsContainer.getNamedChildren()['flask'][0])
+        self.itemsImages.append(self.itemsContainer.getNamedChildren()['coins1'][0])
+        self.itemsImages.append(self.itemsContainer.getNamedChildren()['coins2'][0])
+        self.itemsImages.append(self.itemsContainer.getNamedChildren()['coins3'][0])
+        self.itemsContainer.show()
+        for x in self.itemsImages:
+            x.hide()
+    
     def keyPressed(self, evt):
         keyval = evt.getKey().getValue()
         keystr = evt.getKey().getAsString().lower()
@@ -104,6 +114,14 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
         if command.getCommandType() == fife.CMD_QUIT_GAME:
             self.quit = True
             command.consume()
+
+    def showItems(self, items):
+        for n in items:
+            self.itemsImages[n].show()
+
+    def hideItems(self, items):
+        for n in items:
+            self.itemsImages[n].hide()
 
     def youLoose(self):
         if not self.youLooseWindow:

@@ -25,15 +25,61 @@ from humanAgent import HumanAgent
 import random
 from fife.extensions.fife_settings import Setting
 from fife.fife import Location
+from code.utils import makeDisappear, moveObject
 
 TDS = Setting(app_name="rio_de_hola")
 
 class Girl(HumanAgent):
     
-    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True):
+    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True, world = None):
         super(Girl, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
         self.screamSound = self.soundmanager.createSoundEmitter('sounds/scream.ogg')
         self.dead = False
+        self.coins = []
+        self.world = world
+        self.lay = False
+
+    def onInstanceActionFinished(self, instance, action):
+        #print "Action finished: " + str(action.getId())
+        if self.lay:
+            location = self.agent.getLocation()
+            coords = location.getMapCoordinates()
+            moveObject(self.coins[0], coords.x, coords.y)
+            self.world.hideItems([len(self.coins)])
+            self.coins = self.coins[1:]
+            self.moveStep('u')
+            self.lay = False
+            return
+        
+        super(Girl, self).onInstanceActionFinished(instance, action)
+
+    def getActionsList(self, target_instance, target_agent, distance):
+        actions = []
+        if self.coins and not target_instance:
+            actions.append('lay')
+        if target_instance and distance < 1.5:
+            if target_instance.getObject().getId() == "coins_map":
+                actions.append('pick');
+        inherited_actions = super(Girl, self).getActionsList(target_instance, target_agent, distance)
+        return inherited_actions + actions
+    
+    # Execute before default doAction of Agent
+    def doAction(self, name, reactionInstance, reactionAgent, callback, location=None):
+        if name == "kick":
+            self.kick(reactionInstance.getLocation())
+            self.callbacks.append(callback)
+        elif name == "pick":
+            coin = reactionInstance
+            self.coins.append(coin)
+            self.world.showItems([n for n in xrange(1, len(self.coins)+1)])
+            self.run(coin.getLocation())
+            makeDisappear(coin)
+            self.idle()
+        elif name == "lay":
+            self.run(location)
+            self.lay = True
+        else:
+            super(Girl, self).doAction(name, reactionInstance, reactionAgent, callback)
 
     # Execute before default doReaction of Agent
     def doReaction(self, name, actionAgent, reactionInstance):

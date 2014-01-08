@@ -1,4 +1,4 @@
-<Window title="News">
+<Window title="You Loose!">
 	<TextBox name="looseText"/>
 	<Button name="closeButton" text="Try again"/>
 </Window>
