@@ -48,6 +48,7 @@ class Girl(HumanAgent):
             location = self.agent.getLocation()
             coords = location.getMapCoordinates()
             moveObject(self.coins[0], coords.x, coords.y)
+            self.world.updateChemist(self.agent.getLocation())
             #self.world.hideItems([len(self.coins)])
             self.coins = self.coins[1:]
             self.moveStep('u')

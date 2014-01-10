@@ -6009,12 +6009,13 @@
 			<i x="9.0" o="bee" id="bee9" z="0.0" y="9.0" r="0"></i>
 			<i x="3" o="flask_map" id="flask0" z="-0.1" y="8" r="90"></i>
 			<i x="3" o="coins_map" id="coins0" z="-0.1" y="9" r="90"></i>
-			<i x="-41" o="coins_map" id="coins0" z="-0.1" y="-29" r="90"></i>
+			<i x="-41" o="coins_map" id="coins1" z="-0.1" y="-29" r="90"></i>
+			<i x="-41" o="coins_map" id="coins2" z="-0.1" y="-28" r="90"></i>
 			<i x="7" o="dynamites_lid" id="dyn_0" z="0.0" y="9" r="90"></i>
 			<i x="-39" o="dynamites_lid" id="dyn_9" z="0.0" y="-29" r="90"></i>
 			<i x="-43" o="dynamites_lid" id="dyn_10" z="0.0" y="-29" r="90"></i>
 			<i x="-17" o="dynamites_lid" id="dyn_11" z="0.0" y="-8" r="90"></i>
-			<i x="30.0" o="chemist" z="0.0" y="-30.0" r="90"></i>
+			<i x="30.0" o="chemist" id="chemist" z="0.0" y="-30.0" r="90"></i>
 			<i x="-45.0" o="beebox" z="0.0" y="-35.0" r="180"></i>
 			<i x="-35.0" o="beebox" z="0.0" y="-33.0" r="0"></i>
 			<i x="-35.0" o="beebox" z="0.0" y="-35.0" r="0"></i>

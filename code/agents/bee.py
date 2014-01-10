@@ -127,7 +127,7 @@ class Bee(Agent):
                 self.state = _STATE_FOLLOW
                 #self.agent.follow('angry_fly', instance, 3 * self.settings.get("rio", "TestAgentSpeed"))
             else:
-                if instance == self.girl.agent:
+                if instance == self.girl.agent and not self.girl.dead:
                     self.attack()
                     #self.girl.die()
                     self.girl.getHit(self)

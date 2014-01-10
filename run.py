@@ -104,6 +104,8 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
         self.healthImage.width = int(length)
     
     def keyPressed(self, evt):
+        if self.world.girl.dead:
+            return
         keyval = evt.getKey().getValue()
         keystr = evt.getKey().getAsString().lower()
         if keyval == fife.Key.ESCAPE:

@@ -240,6 +240,28 @@ class World(EventListenerBase):
             self.instance_to_agent[beekeeper.agent.getFifeId()] = beekeeper
             beekeeper.start()
             
+    def updateChemist(self, agentPosition):            
+        chemistInstance = self.agentlayer.getInstance('chemist')
+        chemist = chemistInstance.getLocation()
+        agentDistance = chemist.getLayerDistanceTo(agentPosition)
+        if agentDistance > 2.5:
+            return
+        flask = self.agentlayer.getInstance('flask0').getLocation()
+        coins = 0
+        for i in xrange(3):
+            coin = self.agentlayer.getInstance('coins'+str(i)).getLocation()
+            d = chemist.getLayerDistanceTo(coin)
+            if d < 2.5:
+                coins = coins+1
+        fd = chemist.getLayerDistanceTo(flask)
+        if fd < 2.5:
+            if coins < 3:
+                chemistInstance.say("Thanks! Bring more coins.", 3000)
+            else:
+                chemistInstance.say("WINNNNN", 3000)
+        else:
+            chemistInstance.say("Thanks! Bring more coins and the honey.", 3000)
+
     def initCameras(self):
         """
         Before we can actually see something on screen we have to specify the render setup.
@@ -339,6 +361,8 @@ class World(EventListenerBase):
         return location
 
     def keyPressed(self, evt):
+        if self.girl.dead:
+            return
         keyval = evt.getKey().getValue()
         keystr = evt.getKey().getAsString().lower()
         if keystr == 't':
@@ -376,15 +400,21 @@ class World(EventListenerBase):
             self.mainAgent.keyPressed(keyval)
 
     def keyReleased(self, evt):
+        if self.girl.dead:
+            return
         keyval = evt.getKey().getValue()
         if keyval in (fife.Key.LEFT_CONTROL, fife.Key.RIGHT_CONTROL):
             self.ctrldown = False
 
     def mouseWheelMovedUp(self, evt):
+        if self.girl.dead:
+            return
         if self.ctrldown:
             self.cameras['main'].setZoom(self.cameras['main'].getZoom() * 1.05)
 
     def mouseWheelMovedDown(self, evt):
+        if self.girl.dead:
+            return
         if self.ctrldown:
             self.cameras['main'].setZoom(self.cameras['main'].getZoom() / 1.05)
 
@@ -398,7 +428,7 @@ class World(EventListenerBase):
             self.cameras['main'].setRotation((currot + 5) % 360)
 
     def mousePressed(self, evt):
-        if evt.isConsumedByWidgets():
+        if evt.isConsumedByWidgets() or self.girl.dead:
             return
 
         clickpoint = fife.ScreenPoint(evt.getX(), evt.getY())
@@ -416,6 +446,8 @@ class World(EventListenerBase):
                 self.show_instancemenu(clickpoint, location, None)
 
     def mouseMoved(self, evt):
+        if self.girl.dead:
+            return
         renderer = fife.InstanceRenderer.getInstance(self.cameras['main'])
         renderer.removeAllOutlines()
 
