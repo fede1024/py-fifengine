@@ -48,7 +48,7 @@ class Boy(HumanAgent):
             coords = location.getMapCoordinates()
             moveObject(self.bottle, coords.x, coords.y)
             self.bottle = None
-            self.world.hideItems([0])
+            #self.world.hideItems([0])
             self.moveStep('u')
             self.lay = False
             return
@@ -91,7 +91,7 @@ class Boy(HumanAgent):
             self.callbacks.append(callback)
         elif name == "pick":
             self.bottle = reactionInstance
-            self.world.showItems([0])
+            #self.world.showItems([0])
             self.run(self.bottle.getLocation())
             makeDisappear(self.bottle)
             self.idle()

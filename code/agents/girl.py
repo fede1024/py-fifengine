@@ -31,13 +31,16 @@ TDS = Setting(app_name="rio_de_hola")
 
 class Girl(HumanAgent):
     
-    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True, world = None):
+    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True, world = None, looseCallback=None, updateLifeCallback=None):
         super(Girl, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
         self.screamSound = self.soundmanager.createSoundEmitter('sounds/scream.ogg')
         self.dead = False
         self.coins = []
         self.world = world
         self.lay = False
+        self.looseCallback = looseCallback
+        self.updateLifeCallback = updateLifeCallback
+        self.life = 100
 
     def onInstanceActionFinished(self, instance, action):
         #print "Action finished: " + str(action.getId())
@@ -45,7 +48,7 @@ class Girl(HumanAgent):
             location = self.agent.getLocation()
             coords = location.getMapCoordinates()
             moveObject(self.coins[0], coords.x, coords.y)
-            self.world.hideItems([len(self.coins)])
+            #self.world.hideItems([len(self.coins)])
             self.coins = self.coins[1:]
             self.moveStep('u')
             self.lay = False
@@ -65,13 +68,10 @@ class Girl(HumanAgent):
     
     # Execute before default doAction of Agent
     def doAction(self, name, reactionInstance, reactionAgent, callback, location=None):
-        if name == "kick":
-            self.kick(reactionInstance.getLocation())
-            self.callbacks.append(callback)
-        elif name == "pick":
+        if name == "pick":
             coin = reactionInstance
             self.coins.append(coin)
-            self.world.showItems([n for n in xrange(1, len(self.coins)+1)])
+            #self.world.showItems([n for n in xrange(1, len(self.coins)+1)])
             self.run(coin.getLocation())
             makeDisappear(coin)
             self.idle()
@@ -87,8 +87,11 @@ class Girl(HumanAgent):
             girlTexts = TDS.get("rio", "girlTexts")
             reactionInstance.say(random.choice(girlTexts), 5000)
             self.run(actionAgent.agent.getLocationRef())
-        elif name=="kick":
-            self.agent.say("Hey!!!", 3500)
+        elif name=="kick" or name=='hit':
+            if name=='kick':
+                self.agent.say("Hey!!!", 3500)
+            else:
+                self.agent.say("Damn!!!", 3500)
             self.screamSound.play()
             location = self.agent.getLocationRef()
             my_coords = location.getMapCoordinates()
@@ -103,9 +106,19 @@ class Girl(HumanAgent):
         else:
             super(Girl, self).doReaction(name, actionAgent, reactionInstance)
             
+    def getHit(self, bee):
+        if self.dead:
+            return
+        self.doReaction('hit', bee, self.agent)
+        self.life -= 10
+        self.updateLifeCallback(self.life)
+        if self.life <= 0:
+            self.die()
+        
     def die(self):
         if not self.dead:
             self.footSound.stop()
-            self.screamSound.play()
+            #self.screamSound.play()
             self.dead = True
+            self.looseCallback()
             self.idle()

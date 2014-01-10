@@ -1,0 +1,11 @@
+<Container size="266,65" position="758,0" opaque="0" border_size="0">
+	<Icon name="bg"
+		position="0,0"
+		image="gui/images/hb/bg.gif" />
+	<Icon name="fg"
+		position="60,25"
+		image="gui/images/hb/fg.gif" />
+	<Icon name="frame"
+		position="0,0"
+		image="gui/images/hb/frame.png" />
+</Container>

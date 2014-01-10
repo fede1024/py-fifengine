@@ -219,13 +219,13 @@ class World(EventListenerBase):
         self.mainAgent = self.boy
         self.boy.start()
 
-        self.girl = Girl(TDS, self.model, 'NPC:girl', self.agentlayer, self.soundmanager, world = self)
+        self.girl = Girl(TDS, self.model, 'NPC:girl', self.agentlayer, self.soundmanager, world = self, looseCallback = self.loose, updateLifeCallback = self.gui.girlLifeUpdate)
         self.instance_to_agent[self.girl.agent.getFifeId()] = self.girl
         self.girl.start()
 
         self.bees = []
         for i in xrange(10):
-            bee = Bee(TDS, self.model, 'bee' + str(i), self.agentlayer, self.soundmanager, girl = self.girl, looseCallback = self.loose)
+            bee = Bee(TDS, self.model, 'bee' + str(i), self.agentlayer, self.soundmanager, girl = self.girl)
             self.instance_to_agent[bee.agent.getFifeId()] = bee
             bee.start()
             self.bees.append(bee)
@@ -483,6 +483,23 @@ class World(EventListenerBase):
         """
         Called every frame.
         """
+
+        if self.boy.bottle:
+            if self.gui.itemsImages[0].x < 5:
+                self.gui.itemsImages[0].x += 2
+        else:
+            if self.gui.itemsImages[0].x > -60:
+                self.gui.itemsImages[0].x -= 2
+           
+        coins = len(self.girl.coins) 
+
+        for i in xrange(3):
+            if i < coins:
+                if self.gui.itemsImages[i+1].x < 5:
+                    self.gui.itemsImages[i+1].x += 2
+            else:
+                if self.gui.itemsImages[i+1].x > -60:
+                    self.gui.itemsImages[i+1].x -= 2
 
         if self.pump_ctr % 10 == 0:
             flask = self.agentlayer.getInstance('flask0')

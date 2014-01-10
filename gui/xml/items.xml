@@ -1,14 +1,14 @@
-<Container size="60,200" position="10,120" opaque="0" border_size="0">
+<Container size="70,200" position="0,120" opaque="0" border_size="0">
 	<Icon name="flask"
-		position="0,0"
+		position="-60,0"
 		image="gui/images/flask.png" />
 	<Icon name="coins1"
-		position="0,50"
+		position="-60,50"
 		image="gui/images/coins.png" />
 	<Icon name="coins2"
-		position="0,90"
+		position="-60,90"
 		image="gui/images/coins.png" />
 	<Icon name="coins3"
-		position="0,130"
+		position="-60,130"
 		image="gui/images/coins.png" />
 </Container>

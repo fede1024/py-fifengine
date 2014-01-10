@@ -11,7 +11,7 @@ _STATE_NONE, _STATE_IDLE, _STATE_FLY, _STATE_FOLLOW, _STATE_DEAD, _STATE_ATTACK 
 
 class Bee(Agent):
     
-    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True, girl=None, looseCallback=None):
+    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True, girl=None):
         super(Bee, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
         self.state = _STATE_IDLE
         self.idlecounter = 1
@@ -20,7 +20,6 @@ class Bee(Agent):
         self.followed = None
         #self.boy = self.layer.getInstance('PC')
         self.girl = girl
-        self.looseCallback = looseCallback
         self.beeHoneyTexts = TDS.get("rio", "beeHoneyTexts")
         self.beeGirlTexts = TDS.get("rio", "beeGirlTexts")
 
@@ -130,8 +129,8 @@ class Bee(Agent):
             else:
                 if instance == self.girl.agent:
                     self.attack()
-                    self.girl.die()
-                    self.looseCallback()
+                    #self.girl.die()
+                    self.girl.getHit(self)
                 else:
                     self.idle()
 

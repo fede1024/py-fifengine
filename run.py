@@ -24,6 +24,7 @@
 # ####################################################################
 # This is the rio de hola client for FIFE.
 
+from __future__ import division
 import sys, os
 
 fife_path = os.path.join('..','..','engine','python')
@@ -91,8 +92,16 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
         self.itemsImages.append(self.itemsContainer.getNamedChildren()['coins2'][0])
         self.itemsImages.append(self.itemsContainer.getNamedChildren()['coins3'][0])
         self.itemsContainer.show()
-        for x in self.itemsImages:
-            x.hide()
+        #for x in self.itemsImages:
+        #    x.hide()
+        
+        self.healthBar = pychan.loadXML('gui/xml/life.xml')
+        self.healthImage = self.healthBar.getNamedChildren()['fg'][0]
+        self.healthBar.show()
+    
+    def girlLifeUpdate(self, life):
+        length = 199/100*life
+        self.healthImage.width = int(length)
     
     def keyPressed(self, evt):
         keyval = evt.getKey().getValue()
@@ -128,6 +137,7 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
             self.youLooseWindow = pychan.loadXML('gui/xml/youLoose.xml')
             def restartWorld():
                 self.world.restart()
+                self.girlLifeUpdate(100)
                 self.youLooseWindow.hide()
             self.youLooseWindow.mapEvents({ 'closeButton' : restartWorld })
             self.youLooseWindow.distributeData({ 'looseText' : "The girl got killed. You loose. Try again!" })
