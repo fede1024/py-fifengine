@@ -1,4 +1,4 @@
-<Container size="266,65" position="758,0" opaque="0" border_size="0">
+<Container size="266,65" position="0,5" opaque="0" border_size="0">
 	<Icon name="bg"
 		position="0,0"
 		image="gui/images/hb/bg.gif" />

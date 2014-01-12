@@ -24,6 +24,7 @@ class Bee(Agent):
         self.beeGirlTexts = TDS.get("rio", "beeGirlTexts")
 
     def onInstanceActionFinished(self, instance, action):
+        #print "Finish", self.state
         if self.state == _STATE_DEAD:
             self.agent.actOnce('dead')
             return
@@ -47,6 +48,7 @@ class Bee(Agent):
         super(Bee, self).onInstanceActionFinished(instance, action)
 
     def onInstanceActionCancelled(self, instance, action):
+        #print "CANC"
         pass
 
     def start(self):
@@ -59,7 +61,7 @@ class Bee(Agent):
     def fly(self, location):
         self.state = _STATE_FLY
         self.idlecounter = 1
-        self.agent.move('fly', location, 6 * self.settings.get("rio", "TestAgentSpeed"))
+        #print ">>", self.agent.move('fly', location, 6 * self.settings.get("rio", "TestAgentSpeed"))
 
     def attack(self):
         self.state = _STATE_ATTACK
@@ -123,8 +125,12 @@ class Bee(Agent):
                         self.agent.say(random.choice(self.beeGirlTexts), 1000)
                     else:
                         self.agent.say(random.choice(self.beeHoneyTexts), 1000)
-                self.fly(instance.getLocation())
-                self.state = _STATE_FOLLOW
+                if self.state != _STATE_FOLLOW:
+                    self.fly(instance.getLocation())
+                    #print instance, instance.getLocation(), instance.getLocation().getMapCoordinates()
+                    self.state = _STATE_FOLLOW
+                else:
+                    self.idle()
                 #self.agent.follow('angry_fly', instance, 3 * self.settings.get("rio", "TestAgentSpeed"))
             else:
                 if instance == self.girl.agent and not self.girl.dead:
@@ -132,6 +138,9 @@ class Bee(Agent):
                     #self.girl.die()
                     self.girl.getHit(self)
                 else:
+                    #rot = self.agent.getRotation()
+                    #rot = (rot+20)%360
+                    #self.agent.setRotation(rot)
                     self.idle()
 
     def isIdle(self):

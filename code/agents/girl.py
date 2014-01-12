@@ -34,6 +34,7 @@ class Girl(HumanAgent):
     def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True, world = None, looseCallback=None, updateLifeCallback=None):
         super(Girl, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
         self.screamSound = self.soundmanager.createSoundEmitter('sounds/scream.ogg')
+        self.coinsSound = self.soundmanager.createSoundEmitter('sounds/coins.ogg')
         self.dead = False
         self.coins = []
         self.world = world
@@ -48,6 +49,7 @@ class Girl(HumanAgent):
             location = self.agent.getLocation()
             coords = location.getMapCoordinates()
             moveObject(self.coins[0], coords.x, coords.y)
+            self.coinsSound.play()
             self.world.updateChemist(self.agent.getLocation())
             #self.world.hideItems([len(self.coins)])
             self.coins = self.coins[1:]
@@ -75,6 +77,7 @@ class Girl(HumanAgent):
             #self.world.showItems([n for n in xrange(1, len(self.coins)+1)])
             self.run(coin.getLocation())
             makeDisappear(coin)
+            self.coinsSound.play()
             self.idle()
         elif name == "lay":
             self.run(location)

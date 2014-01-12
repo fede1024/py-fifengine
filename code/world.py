@@ -25,6 +25,7 @@ from fife import fife
 from fife.extensions import pychan
 from fife.extensions.pychan.internal import get_manager
 
+from code.utils import moveObject
 from code.common.eventlistenerbase import EventListenerBase
 from fife.extensions.savers import saveMapFile
 from fife.extensions.soundmanager import SoundManager
@@ -239,6 +240,11 @@ class World(EventListenerBase):
         for beekeeper in self.beekeepers:
             self.instance_to_agent[beekeeper.agent.getFifeId()] = beekeeper
             beekeeper.start()
+            
+        moveObject(self.agentlayer.getInstance('flask0'), x=3.5, y=9.5)
+        moveObject(self.agentlayer.getInstance('coins0'), x=-18, y=-15)
+        moveObject(self.agentlayer.getInstance('coins1'), x=-22.5, y=-14.5)
+        moveObject(self.agentlayer.getInstance('coins2'), x=-18, y=-14.5)
             
     def updateChemist(self, agentPosition):            
         chemistInstance = self.agentlayer.getInstance('chemist')
@@ -542,15 +548,27 @@ class World(EventListenerBase):
                     boy_distance = self.boy.agent.getLocation().getLayerDistanceTo(bee.agent.getLocation())
                 flask_distance = flask.getLocation().getLayerDistanceTo(bee.agent.getLocation())
                 girl_distance = self.girl.agent.getLocation().getLayerDistanceTo(bee.agent.getLocation())
-                bee.followed = None
-                if girl_distance < 5 and (bee.followed != self.girl or bee.isIdle()) and not bee.isDead():
+                f = ""
+                if bee.followed:
+                    f = bee.followed.getObject().getId()
+                if girl_distance < 5 and not bee.isDead():
+                    if f == "girl" and not bee.isIdle():
+                        return
+                    print "1) Following:", f
                     if not bee.isAttacking():
                         bee.followed = self.girl.agent
                         bee.follow(self.girl.agent)
-                elif flask_distance < 5 and (bee.followed != flask or bee.isIdle()) and not bee.isDead():
+                elif flask_distance < 5  and not bee.isDead():
+                    if f == "flask_map" and not bee.isIdle():
+                        return
+                    print "qui", flask_distance, f != "flask_map", bee.isIdle(), bee.isDead(), bee.followed, flask
+                    print "2) Following:", f
                     bee.followed = flask
                     bee.follow(flask)
-                elif boy_distance < 5 and (bee.followed != self.boy.agent or bee.isIdle()) and not bee.isDead():
+                elif boy_distance < 5 and not bee.isDead():
+                    if f == "boy" and not bee.isIdle():
+                        return
+                    print "3) Following:", f
                     bee.followed = self.boy.agent
                     bee.follow(self.boy.agent)
                 

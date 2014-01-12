@@ -91,6 +91,7 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
         self.itemsImages.append(self.itemsContainer.getNamedChildren()['coins1'][0])
         self.itemsImages.append(self.itemsContainer.getNamedChildren()['coins2'][0])
         self.itemsImages.append(self.itemsContainer.getNamedChildren()['coins3'][0])
+        #self.itemsImages.append(self.itemsContainer.getNamedChildren()['coins3'][0])
         self.itemsContainer.show()
         #for x in self.itemsImages:
         #    x.hide()
@@ -98,6 +99,8 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
         self.healthBar = pychan.loadXML('gui/xml/life.xml')
         self.healthImage = self.healthBar.getNamedChildren()['fg'][0]
         self.healthBar.show()
+        size = TDS.get("FIFE", "ScreenResolution")
+        self.healthBar.x = int(size.split('x')[0]) - 266 - 5
     
     def girlLifeUpdate(self, life):
         length = 199/100*life

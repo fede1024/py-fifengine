@@ -1,7 +1,7 @@
 from fife.fife import Location
 
 def moveObject(instance, x=None, y=None, z=None):
-    location = instance.getLocation()
+    location = Location(instance.getLocation())
     coords = location.getMapCoordinates()
     if x:
         coords.x = x
@@ -13,7 +13,7 @@ def moveObject(instance, x=None, y=None, z=None):
     instance.setLocation(location)
 
 def moveObjectRelative(instance, x=None, y=None, z=None):
-    location = instance.getLocation()
+    location = Location(instance.getLocation())
     coords = location.getMapCoordinates()
     if x:
         coords.x += x

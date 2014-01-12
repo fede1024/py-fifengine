@@ -1,6 +1,10 @@
 <?fife type="atlas"?>
 <atlas name="items1.png" namespace="http://www.fifengine.net/xml/rio_de_hola" width="1024" height="982">
-	<image source="signs/sign2/000.png" xpos="0" ypos="0" width="128" height="128"/>
+	<image source="ask2.png" xpos="508" ypos="916" width="73" height="57"/>
+	<image source="ask1.png" xpos="592" ypos="917" width="73" height="57"/>
+	<image source="ask0.png" xpos="418" ypos="916" width="73" height="57"/>
+	<image source="ask3.png" xpos="680" ypos="921" width="73" height="57"/>
+	<image source="signs/sign2/000.png" xpos="0" ypos="0" width="73" height="57"/>
 	<image source="signs/sign2/045.png" xpos="128" ypos="0" width="128" height="128"/>
 	<image source="signs/sign2/090.png" xpos="256" ypos="0" width="128" height="128"/>
 	<image source="signs/sign2/135.png" xpos="384" ypos="0" width="128" height="128"/>
@@ -414,4 +418,10 @@
 </object>
 <object id="blocker_visible" namespace="http://www.fifengine.net/xml/rio_de_hola" blocking="1" static="1">
 	<image source="helpers/blocker_visible/000.png" direction="0" />
+</object>
+<object id="ask_him" namespace="http://www.fifengine.net/xml/rio_de_hola" blocking="0" static="1">
+	<image source="ask0.png" direction="0" />
+	<image source="ask1.png" direction="90" />
+	<image source="ask2.png" direction="180" />
+	<image source="ask3.png" direction="270" />
 </object>
