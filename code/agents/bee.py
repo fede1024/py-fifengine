@@ -3,6 +3,7 @@ from fife.extensions.fife_settings import Setting
 from fife.fife import Location
 from code.utils import moveObjectRelative
 import random, math
+import exceptions
 
 TDS = Setting(app_name="rio_de_hola")
 
@@ -24,7 +25,6 @@ class Bee(Agent):
         self.beeGirlTexts = TDS.get("rio", "beeGirlTexts")
 
     def onInstanceActionFinished(self, instance, action):
-        #print "Finish", self.state
         if self.state == _STATE_DEAD:
             self.agent.actOnce('dead')
             return
@@ -61,7 +61,22 @@ class Bee(Agent):
     def fly(self, location):
         self.state = _STATE_FLY
         self.idlecounter = 1
-        #print ">>", self.agent.move('fly', location, 6 * self.settings.get("rio", "TestAgentSpeed"))
+        try:
+            self.agent.move('fly', location, 6 * self.settings.get("rio", "TestAgentSpeed"))
+        except exceptions.RuntimeError, e: 
+            print "That appens somethimes, when you move an object in the exactly same moments that another agent (a bee in this case)\
+moves to that object. With a try/catch it doesn't crashes the whole game. Error: ", e
+            pass
+
+    def followAction(self, instance):
+        self.state = _STATE_FLY
+        self.idlecounter = 1
+        try:
+            self.agent.follow('fly', instance, 6 * self.settings.get("rio", "TestAgentSpeed"))
+        except exceptions.RuntimeError, e: 
+            print "That appens somethimes, when you move an object in the exactly same moments that another agent (a bee in this case)\
+moves to that object. With a try/catch it doesn't crashes the whole game. Error: ", e
+            pass
 
     def attack(self):
         self.state = _STATE_ATTACK
@@ -126,7 +141,8 @@ class Bee(Agent):
                     else:
                         self.agent.say(random.choice(self.beeHoneyTexts), 1000)
                 if self.state != _STATE_FOLLOW:
-                    self.fly(instance.getLocation())
+                    self.followAction(instance)
+                    #self.fly(instance.getLocation())
                     #print instance, instance.getLocation(), instance.getLocation().getMapCoordinates()
                     self.state = _STATE_FOLLOW
                 else:

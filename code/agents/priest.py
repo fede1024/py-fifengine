@@ -22,17 +22,16 @@
 # ####################################################################
 
 from agent import Agent
-from fife.extensions.fife_settings import Setting
 import random
+from fife.extensions.fife_settings import Setting
 
 TDS = Setting(app_name="rio_de_hola")
+_STATE_NONE, _STATE_IDLE, _STATE_WALK = xrange(3)
 
-_STATE_NONE, _STATE_IDLE, _STATE_WALK,  _STATE_TALK = range(4)
-
-class Beekeeper(Agent):
-
+class Priest(Agent):
+    
     def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True, world = None, looseCallback=None, updateLifeCallback=None):
-        super(Beekeeper, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
+        super(Priest, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
         self.kickSound = self.soundmanager.createSoundEmitter('sounds/kick.ogg')
         self.world = world
         self.reaction = None
@@ -43,39 +42,44 @@ class Beekeeper(Agent):
         if self.state == _STATE_WALK:
             if self.reaction:
                 self.agent.actOnce(self.reaction)
+                if self.reaction == "attack":
+                    self.kickSound.play()
                 self.reaction = None
             self.state = _STATE_IDLE
         else:
             self.idle()
 
-        super(Beekeeper, self).onInstanceActionFinished(instance, action)
+        super(Priest, self).onInstanceActionFinished(instance, action)
 
     def onInstanceActionCancelled(self, instance, action):
         pass
-
-    def idle(self):
-        self.state = _STATE_IDLE
-        self.agent.actOnce('stand')
-
-    def start(self):
-        self.idle()
-
-    def walk(self, location):
-        self.state = _STATE_WALK
-        self.agent.move('walk', location, 6 * self.settings.get("rio", "TestAgentSpeed"))
-
-    def talk(self):
-        self.state = _STATE_TALK
-        self.agent.actOnce('talk')
+    
+    # Execute before default doAction of Agent
+    def doAction(self, name, reactionInstance, reactionAgent, callback, location=None):
+        super(Priest, self).doAction(name, reactionInstance, reactionAgent, callback)
 
     # Execute before default doReaction of Agent
     def doReaction(self, name, actionAgent, reactionInstance):
         if name=="talk":
-            texts = TDS.get("rio", "beekeeperTexts")
-            reactionInstance.say(texts[self.textCount], 3000)
-            self.textCount = (self.textCount+1)%len(texts)
-            #self.agent.move('run', actionAgent.agent.getLocationRef(), 4 * self.settings.get("rio", "TestAgentSpeed"))  # Beekeper cannot run
+            priestTexts = TDS.get("rio", "priestTexts")
+            reactionInstance.say(priestTexts[self.textCount], 3000)
+            self.textCount = (self.textCount+1)%len(priestTexts)
             self.walk(actionAgent.agent.getLocationRef())
             self.reaction = "talk"
+        elif name=="kick":
+            self.walk(actionAgent.agent.getLocationRef())
+            reactionInstance.say("AOH!!!", 3000)
+            self.reaction = "attack"
         else:
-            super(Beekeeper, self).doReaction(name, actionAgent, reactionInstance)
+            super(Priest, self).doReaction(name, actionAgent, reactionInstance)
+            
+    def walk(self, location):
+        self.state = _STATE_WALK
+        self.agent.move('walk', location, 6 * self.settings.get("rio", "TestAgentSpeed"))
+
+    def start(self):
+        self.idle()
+
+    def idle(self):
+        self.state = _STATE_IDLE
+        self.agent.actOnce('stand')

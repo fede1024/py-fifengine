@@ -32,12 +32,16 @@ from fife.extensions.soundmanager import SoundManager
 from agents.boy import Boy
 from agents.girl import Girl
 from agents.bee import Bee
+from agents.priest import Priest
+from agents.chemist import Chemist
 from agents.dynamite import Dynamite
 from agents.beekeeper import Beekeeper
 from agents.agent import create_anonymous_agents
 from fife.extensions.fife_settings import Setting
 
 TDS = Setting(app_name="rio_de_hola")
+
+num_bees = 10
 
 class World(EventListenerBase):
     """
@@ -194,6 +198,10 @@ class World(EventListenerBase):
         self.cameras['main'].setOverlayColor(0,0,0,180)
         self.gui.youLoose()
     
+    def win(self):
+        self.cameras['main'].setOverlayColor(0,0,255,180)
+        self.gui.youWin()
+    
     def showItems(self, items):
         self.gui.showItems(items)
 
@@ -224,15 +232,23 @@ class World(EventListenerBase):
         self.instance_to_agent[self.girl.agent.getFifeId()] = self.girl
         self.girl.start()
 
+        self.priest = Priest(TDS, self.model, 'priest', self.agentlayer, self.soundmanager, world = self)
+        self.instance_to_agent[self.priest.agent.getFifeId()] = self.priest
+        self.priest.start()
+
+        self.chemist = Chemist(TDS, self.model, 'chemist', self.agentlayer, self.soundmanager, world = self, winCallback=self.win)
+        self.instance_to_agent[self.chemist.agent.getFifeId()] = self.chemist
+        self.chemist.start()
+
         self.bees = []
-        for i in xrange(10):
+        for i in xrange(num_bees):
             bee = Bee(TDS, self.model, 'bee' + str(i), self.agentlayer, self.soundmanager, girl = self.girl)
             self.instance_to_agent[bee.agent.getFifeId()] = bee
             bee.start()
             self.bees.append(bee)
 
         for i in xrange(12):
-            dynamite = Dynamite(TDS, self.model, 'dyn_' + str(i), self.agentlayer, self.soundmanager, bees=self.bees)
+            dynamite = Dynamite(TDS, self.model, 'dyn_' + str(i), self.agentlayer, self.soundmanager, bees=self.bees, girl=self.girl)
             self.instance_to_agent[dynamite.agent.getFifeId()] = dynamite
             dynamite.start()
 
@@ -246,28 +262,6 @@ class World(EventListenerBase):
         moveObject(self.agentlayer.getInstance('coins1'), x=-22.5, y=-14.5)
         moveObject(self.agentlayer.getInstance('coins2'), x=-18, y=-14.5)
             
-    def updateChemist(self, agentPosition):            
-        chemistInstance = self.agentlayer.getInstance('chemist')
-        chemist = chemistInstance.getLocation()
-        agentDistance = chemist.getLayerDistanceTo(agentPosition)
-        if agentDistance > 2.5:
-            return
-        flask = self.agentlayer.getInstance('flask0').getLocation()
-        coins = 0
-        for i in xrange(3):
-            coin = self.agentlayer.getInstance('coins'+str(i)).getLocation()
-            d = chemist.getLayerDistanceTo(coin)
-            if d < 2.5:
-                coins = coins+1
-        fd = chemist.getLayerDistanceTo(flask)
-        if fd < 2.5:
-            if coins < 3:
-                chemistInstance.say("Thanks! Bring more coins.", 3000)
-            else:
-                chemistInstance.say("WINNNNN", 3000)
-        else:
-            chemistInstance.say("Thanks! Bring more coins and the honey.", 3000)
-
     def initCameras(self):
         """
         Before we can actually see something on screen we have to specify the render setup.
@@ -279,6 +273,8 @@ class World(EventListenerBase):
         camera_prefix = self.filename.rpartition('.')[0] # Remove file extension
         camera_prefix = camera_prefix.rpartition('/')[2] # Remove path
         camera_prefix += '_'
+        
+        self.cameras = {}
         
         for cam in self.map.getCameras():
             camera_id = cam.getId().replace(camera_prefix, '')
@@ -521,7 +517,7 @@ class World(EventListenerBase):
         """
         Called every frame.
         """
-
+        
         if self.boy.bottle:
             if self.gui.itemsImages[0].x < 5:
                 self.gui.itemsImages[0].x += 2
@@ -539,38 +535,38 @@ class World(EventListenerBase):
                 if self.gui.itemsImages[i+1].x > -60:
                     self.gui.itemsImages[i+1].x -= 2
 
-        if self.pump_ctr % 10 == 0:
-            flask = self.agentlayer.getInstance('flask0')
-            #bees = [y for _, y in self.instance_to_agent.iteritems() if y.agent.getObject().getId() == 'bee']
-            boy_distance = 1000
-            for bee in self.bees:
-                if self.boy.bottle:
-                    boy_distance = self.boy.agent.getLocation().getLayerDistanceTo(bee.agent.getLocation())
-                flask_distance = flask.getLocation().getLayerDistanceTo(bee.agent.getLocation())
-                girl_distance = self.girl.agent.getLocation().getLayerDistanceTo(bee.agent.getLocation())
-                f = ""
-                if bee.followed:
-                    f = bee.followed.getObject().getId()
-                if girl_distance < 5 and not bee.isDead():
-                    if f == "girl" and not bee.isIdle():
-                        return
-                    print "1) Following:", f
-                    if not bee.isAttacking():
-                        bee.followed = self.girl.agent
-                        bee.follow(self.girl.agent)
-                elif flask_distance < 5  and not bee.isDead():
-                    if f == "flask_map" and not bee.isIdle():
-                        return
-                    print "qui", flask_distance, f != "flask_map", bee.isIdle(), bee.isDead(), bee.followed, flask
-                    print "2) Following:", f
-                    bee.followed = flask
-                    bee.follow(flask)
-                elif boy_distance < 5 and not bee.isDead():
-                    if f == "boy" and not bee.isIdle():
-                        return
-                    print "3) Following:", f
-                    bee.followed = self.boy.agent
-                    bee.follow(self.boy.agent)
+        bee = self.bees[self.pump_ctr%num_bees]
+        
+        flask = self.agentlayer.getInstance('flask0')
+        #bees = [y for _, y in self.instance_to_agent.iteritems() if y.agent.getObject().getId() == 'bee']
+        boy_distance = 1000
+
+        if self.boy.bottle:
+            boy_distance = self.boy.agent.getLocation().getLayerDistanceTo(bee.agent.getLocation())
+        flask_distance = flask.getLocation().getLayerDistanceTo(bee.agent.getLocation())
+        girl_distance = self.girl.agent.getLocation().getLayerDistanceTo(bee.agent.getLocation())
+        f = ""
+        if bee.followed:
+            f = bee.followed.getObject().getId()
+        if girl_distance < 5 and not bee.isDead():
+            if f == "girl" and not bee.isIdle():
+                return
+            #print "1) Following:", f
+            if not bee.isAttacking():
+                bee.followed = self.girl.agent
+                bee.follow(self.girl.agent)
+        elif flask_distance < 5  and not bee.isDead():
+            if f == "flask_map" and not bee.isIdle():
+                return
+            #print "2) Following:", f
+            bee.followed = flask
+            bee.follow(flask)
+        elif boy_distance < 5 and not bee.isDead():
+            if f == "boy" and not bee.isIdle():
+                return
+            #print "3) Following:", f
+            bee.followed = self.boy.agent
+            bee.follow(self.boy.agent)
                 
         self.changeRotation()
         self.pump_ctr = (self.pump_ctr+1) % 1000

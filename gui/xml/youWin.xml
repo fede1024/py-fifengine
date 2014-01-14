@@ -1,0 +1,4 @@
+<Window title="You won!">
+	<TextBox name="winText"/>
+	<Button name="closeButton" text="Play again!"/>
+</Window>

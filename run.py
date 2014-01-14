@@ -59,6 +59,7 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
         self.quit = False
         self.aboutWindow = None
         self.youLooseWindow = None
+        self.youWinWindow = None
 
         self.rootpanel = pychan.loadXML('gui/xml/rootpanel.xml')
         self.rootpanel.mapEvents({ 
@@ -147,6 +148,17 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
             self.youLooseWindow.mapEvents({ 'closeButton' : restartWorld })
             self.youLooseWindow.distributeData({ 'looseText' : "The girl got killed. You loose. Try again!" })
         self.youLooseWindow.show()
+        
+    def youWin(self):
+        if not self.youWinWindow:
+            self.youWinWindow = pychan.loadXML('gui/xml/youWin.xml')
+            def restartWorld():
+                self.world.restart()
+                self.girlLifeUpdate(100)
+                self.youWinWindow.hide()
+            self.youWinWindow.mapEvents({ 'closeButton' : restartWorld })
+            self.youWinWindow.distributeData({ 'winText' : "Congratulation, you won!" })
+        self.youWinWindow.show()
         
     def onQuitButtonPress(self):
         cmd = fife.Command()

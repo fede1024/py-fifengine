@@ -50,7 +50,7 @@ class Girl(HumanAgent):
             coords = location.getMapCoordinates()
             moveObject(self.coins[0], coords.x, coords.y)
             self.coinsSound.play()
-            self.world.updateChemist(self.agent.getLocation())
+            self.world.chemist.update(self.agent.getLocation())
             #self.world.hideItems([len(self.coins)])
             self.coins = self.coins[1:]
             self.moveStep('u')
@@ -96,6 +96,7 @@ class Girl(HumanAgent):
                 self.agent.say("Hey!!!", 3500)
             else:
                 self.agent.say("Damn!!!", 3500)
+            self.updateLife()
             self.screamSound.play()
             location = self.agent.getLocationRef()
             my_coords = location.getMapCoordinates()
@@ -110,10 +111,12 @@ class Girl(HumanAgent):
         else:
             super(Girl, self).doReaction(name, actionAgent, reactionInstance)
             
-    def getHit(self, bee):
+    def getHit(self, instance):
         if self.dead:
             return
-        self.doReaction('hit', bee, self.agent)
+        self.doReaction('hit', instance, self.agent)
+            
+    def updateLife(self):
         self.life -= 10
         self.updateLifeCallback(self.life)
         if self.life <= 0:

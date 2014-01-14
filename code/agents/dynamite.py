@@ -5,7 +5,7 @@ _STATE_NONE, _STATE_CLOSED, _STATE_OPENED, _STATE_EXPLODED = xrange(4)
 
 class Dynamite(Agent):
     
-    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True, bees=[]):
+    def __init__(self, settings, model, agentName, layer, soundmanager, uniqInMap=True, bees=[], girl=None):
         super(Dynamite, self).__init__(settings, model, agentName, layer, soundmanager, uniqInMap)
         self.state = _STATE_CLOSED
         self.boy = self.layer.getInstance('PC')
@@ -13,6 +13,7 @@ class Dynamite(Agent):
         self.sounds['boom'] = self.soundmanager.createSoundEmitter('sounds/boom.ogg', True)
         self.sounds['squeak'] = self.soundmanager.createSoundEmitter('sounds/squeak.ogg', True)
         self.bees = bees
+        self.girl = girl
         self.exploded = False
 
     def onInstanceActionFinished(self, instance, action):
@@ -27,6 +28,8 @@ class Dynamite(Agent):
                     distance = self.agent.getLocation().getLayerDistanceTo(bee.agent.getLocation())
                     if distance < 3 and not bee.isDead():
                         bee.fall()
+                if self.agent.getLocation().getLayerDistanceTo(self.girl.agent.getLocation()) < 3:
+                    self.girl.getHit(self)
 
     def onInstanceActionCancelled(self, instance, action):
         pass
