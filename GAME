@@ -1,0 +1,94 @@
+CHANGES LIST:
+-------------------------------------------------------------------------------
+
+- All mandatory parts (boy/girl switch mapped on key X).
+
+- Added sound effects and music
+You can turn music off and on, and it get stored in preferencies for the next time.
+
+- Boy
+The boy can open dynamite boxes and explode them. Can also catch the honey flask
+to attract the bees. The boy can lay the honey wherever he wants, can move the
+bees and the girl by kicking them.
+
+- Girl
+She can just open dynamite boxes to help the boy and take the coins. She has a
+life bar associated and life decrease ahen she is attacked by a bee, she get hit
+by bombs or by the boy.
+
+- Bees
+They fly randomly, but they keep track of their starting position and don't move
+too far from the initial point. They are attracted by the honey flask or by the
+boy (if he is holding the honey flask) and by the girl (the girl has more
+priority). They can attack the girl and they die if get hit by a bomb.
+
+- Chemist
+He talks and react when objects are given to him (by laying them down close to
+him). The player wins by giving coins and honey to the chemist.
+
+- Beekeper
+He just talks and gives suggestions.
+
+- Dynamite
+Can be opened and explode with a kick killing all the bees nearby and wounding
+the girl (if she is close).
+
+- Coins
+They can be collected and layed down by the giry. There are 3 coins in the map.
+
+- Items bar
+There is a bar on the left (transparent) that contains all collected objects.
+New collected objects are added with through an animation.
+
+- Healt bar
+In the top right corner (automatically adjusted based on window size) there is
+the girl health bar. When it get to zero (all red) the girl is died and the
+player loose.
+
+- Win and lose windows
+They inform the user that he won/loose the game.
+
+- Boy/girl keyboard control
+Is possible to move the boy and the girl with the arrows.
+
+HOW THINGS WORK
+-------------------------------------------------------------------------------
+
+Action/reaction model:
+Instead of putting everithing in the world.py function, each agent has it's own
+code. Each agent has the doAction and doReaction functions, HumanAgents (Boy and
+Girl) also have getActionList function.
+
+         Agent
+         /   \
+        /     \
+  HumanAgent   \
+   /     \      |--Bee       `\
+ Boy    Girl    |--Dynamyte   |__ Those 4 inherit directly from Agent
+                |--Chemist    |
+                |--Priest    ./
+
+getActionList returns a list of actions available for that agent to a specific
+instance (eg. getActionList for boy to bee ['kick' 'talk' 'inspect' ...]). Those
+options get shown in the instanceMenu. When clicked, the function
+doAction('actionName', ..., callback) is called for the actor that performed the
+action. It takes also a callback function that will be performed on the action
+target. Usually that callback function is the doReaction of the target. The
+callback is performed when the first action is completed.
+
+Example: exploding a dynamite with a kick
+
+User is controlling the boy and click into a dynamite box:
+    boy.getActions(dynInstance) -> ['kick', ...]
+User click on 'kick':
+    def callback():
+        dynAgent.doReaction('kick', ...)
+    boy.doAction('talk', dynInstance, ... , callback)
+
+When the action is finished the callback is executed, and the dynamite explodes.
+In this way is easyer to add more functions to agents and to execute code when
+the action is finished.
+
+Girl and boy classes inherits from HumanAgent, and they share some code, for
+example to talk, to inspect and to be driven by the keyboard.
+
