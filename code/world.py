@@ -24,6 +24,7 @@
 from fife import fife
 from fife.extensions import pychan
 from fife.extensions.pychan.internal import get_manager
+import datetime
 
 from code.utils import moveObject
 from code.common.eventlistenerbase import EventListenerBase
@@ -273,7 +274,7 @@ class World(EventListenerBase):
         camera_prefix = self.filename.rpartition('.')[0] # Remove file extension
         camera_prefix = camera_prefix.rpartition('/')[2] # Remove path
         camera_prefix += '_'
-        
+        self.target_rotation  = 0
         self.cameras = {}
         
         for cam in self.map.getCameras():
@@ -379,6 +380,8 @@ class World(EventListenerBase):
         elif keystr == 'r':
             self.model.deleteMaps()
             self.load(self.filename)
+            self.gui.girlLifeUpdate(100)
+            self.startTime = datetime.datetime.now()
         elif keystr == 'f':
             renderer = fife.CellRenderer.getInstance(self.cameras['main'])
             renderer.setEnabledFogOfWar(not renderer.isEnabledFogOfWar())
@@ -449,7 +452,7 @@ class World(EventListenerBase):
                 self.show_instancemenu(clickpoint, location, None)
 
     def mouseMoved(self, evt):
-        if self.girl.dead:
+        if not self.girl or self.girl.dead:
             return
         renderer = fife.InstanceRenderer.getInstance(self.cameras['main'])
         renderer.removeAllOutlines()
@@ -518,6 +521,9 @@ class World(EventListenerBase):
         """
         Called every frame.
         """
+        
+        if not self.girl or self.girl.dead:
+            return
         
         if self.boy.bottle:
             if self.gui.itemsImages[0].x < 5:

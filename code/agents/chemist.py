@@ -85,17 +85,17 @@ class Chemist(Agent):
         chemistInstance = self.agent
         chemist = chemistInstance.getLocation()
         agentDistance = chemist.getLayerDistanceTo(agentPosition)
-        if agentDistance > 2.5:
+        if agentDistance > 3.5:
             return
         flask = self.layer.getInstance('flask0').getLocation()
         coins = 0
         for i in xrange(3):
             coin = self.layer.getInstance('coins'+str(i)).getLocation()
             d = chemist.getLayerDistanceTo(coin)
-            if d < 2.5:
+            if d < 3.5:
                 coins = coins+1
         fd = chemist.getLayerDistanceTo(flask)
-        if fd < 2.5:
+        if fd < 3.5:
             if coins < 3:
                 chemistInstance.say("Thanks! Bring more coins.", 3000)
             else:

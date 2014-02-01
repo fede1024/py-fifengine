@@ -1,8 +1,16 @@
-STORYLINE:
+STORYLINE
 -------------------------------------------------------------------------------
 
+The girl is ill because the chemist did some experiments with the bees. To cure
+the girl, she needs to bring 3 coins to the chemist and the boy needs to bring
+the honey flask. The honey flask can be used to attract the bees near the
+dynamite boxes and kill them. The beekeper and the priest can give you
+suggestions.
 
-CHANGES LIST:
+Only the girl can be killed by the bees (but also with dynamite explosions).
+
+
+CHANGES LIST
 -------------------------------------------------------------------------------
 
 - All mandatory parts (boy/girl switch mapped on key X).
@@ -103,4 +111,10 @@ example to talk, to inspect and to be driven by the keyboard.
 ONLINE RECORD STORAGE
 -------------------------------------------------------------------------------
 
-todo
+There is a very simple online web service hosted on heroku (code in the server
+folder) that connects to a mongodb server. Basically, the server will store all
+the json objects pushed with a POST request, and will return them back with a
+GET request.
+
+The score is saved at the end of the game, and can be seen with the "scores"
+button.

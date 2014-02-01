@@ -30,7 +30,10 @@ import sys, os, json, urllib, urllib2
 import getpass
 
 fife_path = os.path.join('..','..','engine','python')
-fife_path = os.path.join('/home','federico','tmp','sdproject','engine','python')
+
+if getpass.getuser() =="federico":
+    fife_path = os.path.join('/home','federico','tmp','sdproject','engine','python')
+
 print "Importing fife from: "
 print fife_path
 if os.path.isdir(fife_path) and fife_path not in sys.path:
@@ -165,6 +168,8 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
         self.youLooseWindow.show()
         
     def youWin(self):
+        #music = self.world.soundmanager.createSoundEmitter('sounds/win.ogg')
+        #music.play()
         self.youWinWindow = pychan.loadXML('gui/xml/youWin.xml')
         self.world.girl.dead = True  # stop the game
         field = self.youWinWindow.getNamedChildren()['playerField'][0]
