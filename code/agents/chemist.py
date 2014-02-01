@@ -98,7 +98,6 @@ class Chemist(Agent):
         if fd < 2.5:
             if coins < 3:
                 chemistInstance.say("Thanks! Bring more coins.", 3000)
-                self.winCallback() # TODO remove
             else:
                 self.winCallback()
         else:

@@ -1,4 +1,0 @@
-<Window title="News">
-	<TextBox name="newsText"/>
-	<Button name="closeButton" text="Close"/>
-</Window>

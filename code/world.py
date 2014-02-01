@@ -425,9 +425,10 @@ class World(EventListenerBase):
         Smoothly change the main cameras rotation until
         the current target rotation is reached.
         """
-        currot = self.cameras['main'].getRotation()
-        if self.target_rotation != currot:
-            self.cameras['main'].setRotation((currot + 5) % 360)
+        if "main" in self.cameras:
+            currot = self.cameras['main'].getRotation()
+            if self.target_rotation != currot:
+                self.cameras['main'].setRotation((currot + 5) % 360)
 
     def mousePressed(self, evt):
         if evt.isConsumedByWidgets() or self.girl.dead:

@@ -1,4 +1,9 @@
 <Window title="You won!">
-	<TextBox name="winText"/>
-	<Button name="closeButton" text="Play again!"/>
+	<TextBox name="winText" text="Congratulation, you won!"/>
+	<TextBox name="timeText"/>
+	<HBox>
+        <TextBox text="Enter your name:"/>
+        <TextField name="playerField" min_size="150, 20"/>
+    </HBox>
+	<Button name="closeButton" text="Store online and play again"/>
 </Window>

@@ -25,7 +25,9 @@
 # This is the rio de hola client for FIFE.
 
 from __future__ import division
-import sys, os
+from threading import Thread
+import sys, os, json, urllib, urllib2
+import getpass
 
 fife_path = os.path.join('..','..','engine','python')
 fife_path = os.path.join('/home','federico','tmp','sdproject','engine','python')
@@ -45,6 +47,8 @@ from fife.extensions.pychan.pychanbasicapplication import PychanApplicationBase
 from fife.extensions.pychan.fife_pychansettings import FifePychanSettings
 from fife.extensions.fife_utils import getUserDataDirectory
 
+import datetime
+
 TDS = FifePychanSettings(app_name="rio_de_hola")
 
 class ApplicationListener(eventlistenerbase.EventListenerBase):
@@ -55,9 +59,11 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
         self.world = world
         self.world.gui = self
         engine.getEventManager().setNonConsumableKeys([fife.Key.ESCAPE,])
+        
+        self.startTime = datetime.datetime.now()
 
         self.quit = False
-        self.aboutWindow = None
+        self.window = None
         self.youLooseWindow = None
         self.youWinWindow = None
 
@@ -66,7 +72,7 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
             'quitButton' : self.onQuitButtonPress,
             'aboutButton' : self.onAboutButtonPress,
             'optionsButton' : TDS.showSettingsDialog,
-            'newsButton' : self.onNewsButtonPress,
+            'scoresButton' : self.onScoresButtonPress,
             'soundButton' : self.onSoundButtonPress
         })
         button =  self.rootpanel.getNamedChildren()['soundButton'][0]
@@ -97,11 +103,19 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
         #for x in self.itemsImages:
         #    x.hide()
         
+        # Adjust healthBar position based on resolution
         self.healthBar = pychan.loadXML('gui/xml/life.xml')
         self.healthImage = self.healthBar.getNamedChildren()['fg'][0]
         self.healthBar.show()
         size = TDS.get("FIFE", "ScreenResolution")
         self.healthBar.x = int(size.split('x')[0]) - 266 - 5
+        
+        # wakes up heroku server
+        req_time = datetime.datetime.now()
+        def callback(r):
+            resp_time = datetime.datetime.now()
+            print "Server up in %s seconds\n"%(str(resp_time-req_time)[5:11])
+        asyncDownloadScore(callback)
     
     def girlLifeUpdate(self, life):
         length = 199/100*life
@@ -143,6 +157,7 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
             self.youLooseWindow = pychan.loadXML('gui/xml/youLoose.xml')
             def restartWorld():
                 self.world.restart()
+                self.startTime = datetime.datetime.now()
                 self.girlLifeUpdate(100)
                 self.youLooseWindow.hide()
             self.youLooseWindow.mapEvents({ 'closeButton' : restartWorld })
@@ -150,14 +165,23 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
         self.youLooseWindow.show()
         
     def youWin(self):
-        if not self.youWinWindow:
-            self.youWinWindow = pychan.loadXML('gui/xml/youWin.xml')
-            def restartWorld():
-                self.world.restart()
-                self.girlLifeUpdate(100)
-                self.youWinWindow.hide()
-            self.youWinWindow.mapEvents({ 'closeButton' : restartWorld })
-            self.youWinWindow.distributeData({ 'winText' : "Congratulation, you won!" })
+        self.youWinWindow = pychan.loadXML('gui/xml/youWin.xml')
+        self.world.girl.dead = True  # stop the game
+        field = self.youWinWindow.getNamedChildren()['playerField'][0]
+
+        def restartWorld(response):
+            self.world.restart()
+            self.girlLifeUpdate(100)
+            self.youWinWindow.hide()
+
+        def  buttonPress():
+            self.youWinWindow.distributeData({ 'winText' : "Storing data... please wait" })
+            asyncSaveScore(restartWorld, {'name':field.getData(), 'time': str(end - self.startTime.replace(microsecond=0))}) 
+            
+        end = datetime.datetime.now().replace(microsecond=0)
+        field.setData(getpass.getuser())
+        self.youWinWindow.mapEvents({ 'closeButton' : buttonPress})
+        self.youWinWindow.distributeData({ 'timeText' : "Elapsed time: " + str(end - self.startTime.replace(microsecond=0))})
         self.youWinWindow.show()
         
     def onQuitButtonPress(self):
@@ -167,19 +191,36 @@ class ApplicationListener(eventlistenerbase.EventListenerBase):
         self.engine.getEventManager().dispatchCommand(cmd)
 
     def onAboutButtonPress(self):
-        if not self.aboutWindow:
-            self.aboutWindow = pychan.loadXML('gui/xml/help.xml')
-            self.aboutWindow.mapEvents({ 'closeButton' : self.aboutWindow.hide })
-            self.aboutWindow.distributeData({ 'helpText' : open("misc/infotext.txt").read() })
-        self.aboutWindow.show()
+        #self.youWin() # TODO FIXME XXX remove
+        if not self.window:
+            self.window = pychan.loadXML('gui/xml/help.xml')
+            self.window.mapEvents({ 'closeButton' : self.window.hide })
+            self.window.distributeData({ 'helpText' : open("misc/infotext.txt").read() })
+        self.window.show()
     
-    def onNewsButtonPress(self):
-        if not self.aboutWindow:
-            self.aboutWindow = pychan.loadXML('gui/xml/news.xml')
-            self.aboutWindow.mapEvents({ 'closeButton' : self.aboutWindow.hide })
-            #self.aboutWindow.distributeData({ 'helpText' : open("misc/infotext.txt").read() })
-            self.aboutWindow.distributeData({ 'newsText' : open("game_changes.txt").read() })
-        self.aboutWindow.show()
+    def onScoresButtonPress(self):
+        if self.window:
+            self.window.show()
+            return
+        
+        def callback(response):
+            out = "From http://fede-softdev.herokuapp.com/\n\n"
+            for record in response:
+                out += "%s won in %s in date %s\n"%(record['name'], record['time'][2:], record['date'])
+            self.window.distributeData({ 'scoresText' : out })
+            self.window.getNamedChildren()['scoresText'][0].adaptLayout()
+            
+        def refresh():
+            self.window.distributeData({ 'scoresText' : "Loading..."})
+            asyncDownloadScore(callback)
+            
+        self.window = pychan.loadXML('gui/xml/scores.xml')
+        self.window.mapEvents({ 'refreshButton' : refresh})
+        self.window.mapEvents({ 'closeButton' : self.window.hide })
+        #self.window.distributeData({ 'helpText' : open("misc/infotext.txt").read() })
+        self.window.distributeData({ 'scoresText' : "Loading..."})
+        asyncDownloadScore(callback) 
+        self.window.show()
 
     def onSoundButtonPress(self):
         button =  self.rootpanel.getNamedChildren()['soundButton'][0]
@@ -234,6 +275,29 @@ class IslandDemo(PychanApplicationBase):
         else:
             self.world.pump()
 
+def asyncDownloadScore(callback):
+    def downloadScore(): 
+        url = 'http://fede-softdev.herokuapp.com'
+        urlconn = urllib.urlopen(url)
+        urlcontents = json.loads(urlconn.read())
+        callback(urlcontents)
+    thread = Thread(target = downloadScore, args = ())
+    thread.start()
+    #thread.join()
+
+def asyncSaveScore(callback, data):
+    def saveScore(): 
+        url = 'http://fede-softdev.herokuapp.com'
+        #url = 'http://localhost:5000'
+        req = urllib2.Request(url, json.dumps(data), {'Content-Type': 'application/json'})
+        f = urllib2.urlopen(req)
+        response = f.read()
+        f.close()
+        callback(response)
+    thread = Thread(target = saveScore, args = ())
+    thread.start()
+    #thread.join()
+    
 def main():
     app = IslandDemo()
     app.run()

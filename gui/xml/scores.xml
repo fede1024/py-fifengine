@@ -1,0 +1,7 @@
+<Window title="Scores">
+	<TextBox name="scoresText"/>
+	<HBox>
+        <Button name="refreshButton" text="Refresh"/>
+        <Button name="closeButton" text="Close"/>
+    </HBox>
+</Window>

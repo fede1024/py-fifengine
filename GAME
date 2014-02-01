@@ -1,3 +1,7 @@
+STORYLINE:
+-------------------------------------------------------------------------------
+
+
 CHANGES LIST:
 -------------------------------------------------------------------------------
 
@@ -7,19 +11,19 @@ CHANGES LIST:
 You can turn music off and on, and it get stored in preferencies for the next time.
 
 - Boy
-The boy can open dynamite boxes and explode them. Can also catch the honey flask
-to attract the bees. The boy can lay the honey wherever he wants, can move the
-bees and the girl by kicking them.
+The boy can open dynamite boxes and explode them. Can also catch the honey
+flask to attract the bees. The boy can lay the honey wherever he wants, can
+move the bees and the girl by kicking them. He can be controlled by the keyboard.
 
 - Girl
 She can just open dynamite boxes to help the boy and take the coins. She has a
-life bar associated and life decrease ahen she is attacked by a bee, she get hit
-by bombs or by the boy.
+life bar associated and life decrease when she is attacked by a bee or get hit
+by bombs or by the boy. She can be controlled by the keyboard.
 
 - Bees
 They fly randomly, but they keep track of their starting position and don't move
-too far from the initial point. They are attracted by the honey flask or by the
-boy (if he is holding the honey flask) and by the girl (the girl has more
+too far from the initial point. They are attracted by the honey flask (or by the
+boy if he is holding the honey flask) and by the girl (the girl has more
 priority). They can attack the girl and they die if get hit by a bomb.
 
 - Chemist
@@ -28,6 +32,9 @@ him). The player wins by giving coins and honey to the chemist.
 
 - Beekeper
 He just talks and gives suggestions.
+
+- Priest
+He also talks and kick you back if you kick him.
 
 - Dynamite
 Can be opened and explode with a kick killing all the bees nearby and wounding
@@ -46,7 +53,8 @@ the girl health bar. When it get to zero (all red) the girl is died and the
 player loose.
 
 - Win and lose windows
-They inform the user that he won/loose the game.
+They inform the user that he won/loose the game. In the win window tha user can
+insert his name that get stored online.
 
 - Boy/girl keyboard control
 Is possible to move the boy and the girl with the arrows.
@@ -69,7 +77,7 @@ Girl) also have getActionList function.
                 |--Priest    ./
 
 getActionList returns a list of actions available for that agent to a specific
-instance (eg. getActionList for boy to bee ['kick' 'talk' 'inspect' ...]). Those
+instance (eg. getActionList for boy to bee = ['kick' 'talk' 'inspect' ...]). Those
 options get shown in the instanceMenu. When clicked, the function
 doAction('actionName', ..., callback) is called for the actor that performed the
 action. It takes also a callback function that will be performed on the action
@@ -79,16 +87,20 @@ callback is performed when the first action is completed.
 Example: exploding a dynamite with a kick
 
 User is controlling the boy and click into a dynamite box:
-    boy.getActions(dynInstance) -> ['kick', ...]
+    boy.getActions(dynInstance) -> ['kick', ...] -> show instance menu.
 User click on 'kick':
     def callback():
         dynAgent.doReaction('kick', ...)
     boy.doAction('talk', dynInstance, ... , callback)
 
-When the action is finished the callback is executed, and the dynamite explodes.
-In this way is easyer to add more functions to agents and to execute code when
-the action is finished.
+When the action is finished the callback is executed, and the dynamite
+explodes.  In this way is easyer to add more functionalities to agents and to
+execute code when the action is finished.
 
 Girl and boy classes inherits from HumanAgent, and they share some code, for
 example to talk, to inspect and to be driven by the keyboard.
 
+ONLINE RECORD STORAGE
+-------------------------------------------------------------------------------
+
+todo
